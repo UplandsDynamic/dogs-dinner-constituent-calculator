@@ -56,10 +56,12 @@ def init_constituent_params():
             'panc': {
                 'low': 20,
                 'high': 30,
+                'default_changed': False,
             },
             'renal': {
                 'low': 15,
                 'high': 30,
+                'default_changed': False,
             },
         },
         'fat': {
@@ -68,10 +70,12 @@ def init_constituent_params():
             'panc': {
                 'low': 5,
                 'high': 10,
+                'default_changed': False,
             },
             'renal': {
                 'low': None,
                 'high': None,
+                'default_changed': False,
             },
         },
         'carbs': {
@@ -80,10 +84,12 @@ def init_constituent_params():
             'panc': {
                 'low': 0,
                 'high': 60,
+                'default_changed': False,
             },
             'renal': {
                 'low': None,
                 'high': None,
+                'default_changed': False,
             },
         },
         'fibre': {
@@ -92,10 +98,12 @@ def init_constituent_params():
             'panc': {
                 'low': None,
                 'high': None,
+                'default_changed': False,
             },
             'renal': {
                 'low': None,
                 'high': None,
+                'default_changed': False,
             },
         },
         'sugar': {
@@ -104,10 +112,12 @@ def init_constituent_params():
             'panc': {
                 'low': 0,
                 'high': 0,
+                'default_changed': False,
             },
             'renal': {
                 'low': None,
                 'high': None,
+                'default_changed': False,
             },
         },
         'sodium': {
@@ -116,10 +126,12 @@ def init_constituent_params():
             'panc': {
                 'low': None,
                 'high': None,
+                'default_changed': False,
             },
             'renal': {
                 'low': 0.0004,
                 'high': 0.0012,
+                'default_changed': False,
             },
         },
         'chloride': {
@@ -128,10 +140,12 @@ def init_constituent_params():
             'panc': {
                 'low': None,
                 'high': None,
+                'default_changed': False,
             },
             'renal': {
                 'low': None,
                 'high': None,
+                'default_changed': False,
             },
         },
         'ash': {
@@ -140,10 +154,12 @@ def init_constituent_params():
             'panc': {
                     'low': None,
                     'high': None,
+                    'default_changed': False,
             },
             'renal': {
                 'low': None,
                 'high': None,
+                'default_changed': False,
             },
         },
         'phosphorus': {
@@ -152,10 +168,12 @@ def init_constituent_params():
             'panc': {
                 'low': None,
                 'high': None,
+                'default_changed': False,
             },
             'renal': {
                 'low': 0.2,
                 'high': 0.8,
+                'default_changed': False,
             },
         },
     }
@@ -169,7 +187,7 @@ def gen_param_tables(constituents):
     for condition in ('panc', 'renal'):
         with tab_col_1 if condition == 'panc' else tab_col_2:
             st.subheader('Pancreatitis Diet' if condition ==
-                     'panc' else 'Kidney Disease Diet')
+                         'panc' else 'Kidney Disease Diet')
             edited_data = st.data_editor(
                 pd.DataFrame.from_dict({
                     'min_dry_matter': {
@@ -185,11 +203,9 @@ def gen_param_tables(constituents):
                 column_config={
                     'min_dry_matter': st.column_config.NumberColumn(
                         label="Minimum Dry Matter",
-                        step=0.01,
                     ),
                     'max_dry_matter': st.column_config.NumberColumn(
                         label="Maximum Dry Matter",
-                        step=0.01,
                     ),
                     'measure_unit': st.column_config.TextColumn(
                         label="Measure Unit",
@@ -198,14 +214,19 @@ def gen_param_tables(constituents):
                 disabled=['', 'measure_unit'],
                 key=f'{condition}_constituent_param_editor'
             )
-        # Update the 'low' & 'high' values in the 'panc'/'renal' dict (in the params session variable) with edited values
-        for k, v in edited_data.items():
-            if k == 'min_dry_matter':
-                {c[a][condition].update({'low': y}) for x, y in v.items()
-                    for a, b in c.items() if b.get('desc') == x}
-            elif k == 'max_dry_matter':
-                {c[a][condition].update({'high': y}) for x, y in v.items()
-                    for a, b in c.items() if b.get('desc') == x}
+        update_constituent_params(c, edited_data, condition)
+
+
+# function to update the constituent params upon user edit
+@st.cache_data
+def update_constituent_params(original_params, edited_params, condition):
+    for k, v in edited_params.items():
+        if k == 'min_dry_matter':
+            {original_params[a][condition].update({'low': y, 'default_changed': True}) for x, y in v.items()
+                for a, b in original_params.items() if b.get('desc') == x if original_params[a][condition]['low'] != y}
+        elif k == 'max_dry_matter':
+            {original_params[a][condition].update({'high': y, 'default_changed': True}) for x, y in v.items()
+                for a, b in original_params.items() if b.get('desc') == x if original_params[a][condition]['high'] != y}
 
 
 # calculate dry matter fat (%)
@@ -749,7 +770,7 @@ with st.container(border=True):
     st.markdown(
         "The parameters for the calculations are currently set according to the information published at [All About Dog Food](https://www.allaboutdogfood.co.uk). However, these defaults (below) may be adjusted if required.")
     gen_param_tables(c)
-    # st.write(c)
+    st.write(c)
 
 
 with st.container(border=True):
