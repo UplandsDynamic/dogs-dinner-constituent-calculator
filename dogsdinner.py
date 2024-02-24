@@ -47,7 +47,7 @@ if "dm_kcal_measure_weight" not in st.session_state:
 
 
 @st.cache_data
-def get_constituent_params():
+def init_constituent_params():
     return {
         'protein':
         {
@@ -159,6 +159,54 @@ def get_constituent_params():
             },
         },
     }
+
+# create editable parameter table
+
+
+def gen_param_tables(constituents):
+    c = constituents
+    tab_col_1, tab_col_2 = st.columns(2, gap="medium")
+    for condition in ('panc', 'renal'):
+        with tab_col_1 if condition == 'panc' else tab_col_2:
+            st.subheader('Pancreatitis Diet' if condition ==
+                     'panc' else 'Kidney Disease Diet')
+            edited_data = st.data_editor(
+                pd.DataFrame.from_dict({
+                    'min_dry_matter': {
+                        x['desc']: x[condition]['low'] for x in c.values() if x.get(condition).get('low', None) is not None and x.get(condition).get('high', None) is not None
+                    },
+                    'max_dry_matter': {
+                        x['desc']: x[condition]['high'] for x in c.values() if x.get(condition).get('low', None) is not None and x.get(condition).get('high', None) is not None
+                    },
+                    'measure_unit': {
+                        x['desc']: x['measure_unit'] for x in c.values() if x.get(condition).get('low', None) is not None and x.get(condition).get('high', None) is not None
+                    },
+                }),
+                column_config={
+                    'min_dry_matter': st.column_config.NumberColumn(
+                        label="Minimum Dry Matter",
+                        step=0.01,
+                    ),
+                    'max_dry_matter': st.column_config.NumberColumn(
+                        label="Maximum Dry Matter",
+                        step=0.01,
+                    ),
+                    'measure_unit': st.column_config.TextColumn(
+                        label="Measure Unit",
+                    )
+                },
+                disabled=['', 'measure_unit'],
+                key=f'{condition}_constituent_param_editor'
+            )
+        # Update the 'low' & 'high' values in the 'panc'/'renal' dict (in the params session variable) with edited values
+        for k, v in edited_data.items():
+            if k == 'min_dry_matter':
+                {c[a][condition].update({'low': y}) for x, y in v.items()
+                    for a, b in c.items() if b.get('desc') == x}
+            elif k == 'max_dry_matter':
+                {c[a][condition].update({'high': y}) for x, y in v.items()
+                    for a, b in c.items() if b.get('desc') == x}
+
 
 # calculate dry matter fat (%)
 
@@ -531,8 +579,14 @@ def display_results(food_name, panc, renal):
                                 test['reason']}")
 
 
+# INITIATE CONSTITUENT PARAMS SESSION STATE
+if 'constituent_params' not in st.session_state:
+    st.session_state.constituent_params = init_constituent_params()
+
+""" ASSIGN CONSTITUENT PARAMS SESSION STATE TO EASY TO REFERENCE POINTER """
+c = st.session_state.constituent_params
+
 """ PAGE 1 """
-c = get_constituent_params()
 st.title("Dog's Dinner Nutrient Calculator")
 st.subheader(
     "'Dry Matter Basis' Calculation for Renal & Pancreatitis Diet Suitability")
@@ -694,6 +748,9 @@ with st.container(border=True):
     st.header("Calculation Parameters")
     st.markdown(
         "The parameters for the calculations are currently set according to the information published at [All About Dog Food](https://www.allaboutdogfood.co.uk). However, these defaults (below) may be adjusted if required.")
+    gen_param_tables(c)
+    # st.write(c)
+
 
 with st.container(border=True):
     st.header("References")
