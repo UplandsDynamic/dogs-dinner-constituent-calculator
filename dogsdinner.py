@@ -838,7 +838,8 @@ with col_1:
         )
 
         st.session_state.crude_carbs = st.number_input(
-            label=f"Crude {constituent_params['carbs']['desc']} ({constituent_params['carbs']['measure_unit']})", min_value=0.00, max_value=100.0
+            label=f"Crude {constituent_params['carbs']['desc']} ({constituent_params['carbs']['measure_unit']})", min_value=0.00, max_value=100.0,
+            help="If a value for carbohydrates is not available, this will be estimated for the calculations as the remainder of 'dry matter' food after accounting for protein, fat, fibre and ash."
         )
 
         st.session_state.crude_fibre = st.number_input(
