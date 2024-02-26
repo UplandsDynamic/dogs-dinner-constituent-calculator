@@ -1,2 +1,9 @@
 [runner] 
 magicEnabled = false
+
+[theme]
+base="dark"
+textColor="#eaeaea"
+
+
+

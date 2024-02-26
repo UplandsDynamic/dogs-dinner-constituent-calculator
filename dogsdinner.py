@@ -1,3 +1,15 @@
+"""
+- Application name: Dog's Dinner Constituent Calculator.
+- Author: Dan Bright, dan@uplandsdynamic.com.
+- Code hosted at: https://github.com/UplandsDynamic/dogs-dinner-constituent-calculator
+- Description: 'Dry Matter Basis' calculation, 
+   comparison & evaluation tool, for renal & pancreatitis 
+   dog food diet suitability.
+- Version: 0.1-beta
+- License: GNU General Public License Version 3.0 (GPLv3.0),
+   available at https://www.gnu.org/licenses/gpl-3.0.txt
+"""
+
 import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -6,6 +18,7 @@ import altair as alt
 st.set_page_config(layout="wide")
 
 """ SET VARIABLES IN SESSION STATE """
+
 if "panc" not in st.session_state:
     st.session_state.panc = False
 if "renal" not in st.session_state:
@@ -41,193 +54,271 @@ if "dm_kcal_per_g" not in st.session_state:
 if "dm_kcal_measure_weight" not in st.session_state:
     st.session_state.dm_kcal_measure_weight = 0
 
-""" FUNCTIONS """
+""" NON SESSION VARIABLES """
 
-# function to define calculation parameters
-
-
-@st.cache_data
-def init_constituent_params():
-    return {
-        'protein':
+constituent_params = {
+    'protein':
         {
             'desc': 'Protein',
             'measure_unit': '%',
             'panc': {
                 'low': 20,
                 'high': 30,
-                'default_changed': False,
+                'defaults_changed': False,
+                'defaults': {
+                    'low': 20,
+                    'high': 30,
+                }
             },
             'renal': {
                 'low': 15,
                 'high': 30,
-                'default_changed': False,
+                'defaults_changed': False,
+                'defaults': {
+                    'low': 15,
+                    'high': 30,
+                }
             },
         },
-        'fat': {
+    'fat': {
             'desc': 'Fat',
             'measure_unit': '%',
             'panc': {
                 'low': 5,
                 'high': 10,
-                'default_changed': False,
+                'defaults_changed': False,
+                'defaults': {
+                    'low': 5,
+                    'high': 10,
+                }
             },
             'renal': {
                 'low': None,
                 'high': None,
-                'default_changed': False,
+                'defaults_changed': False,
+                'defaults': {
+                    'low': None,
+                    'high': None,
+                }
             },
-        },
-        'carbs': {
+    },
+    'carbs': {
             'desc': 'Carbohydrates',
             'measure_unit': '%',
             'panc': {
                 'low': 0,
                 'high': 60,
-                'default_changed': False,
+                'defaults_changed': False,
+                'defaults': {
+                    'low': 0,
+                    'high': 60,
+                }
             },
             'renal': {
                 'low': None,
                 'high': None,
-                'default_changed': False,
+                'defaults_changed': False,
+                'defaults': {
+                    'low': None,
+                    'high': None,
+                }
             },
-        },
-        'fibre': {
+    },
+    'fibre': {
             'desc': 'Fibre',
             'measure_unit': '%',
             'panc': {
                 'low': None,
                 'high': None,
-                'default_changed': False,
+                'defaults_changed': False,
+                'defaults': {
+                    'low': None,
+                    'high': None,
+                }
             },
             'renal': {
                 'low': None,
                 'high': None,
-                'default_changed': False,
+                'defaults_changed': False,
+                'defaults': {
+                    'low': None,
+                    'high': None,
+                }
             },
-        },
-        'sugar': {
+    },
+    'sugar': {
             'desc': 'Added Sugars',
             'measure_unit': 'g',
             'panc': {
                 'low': 0,
                 'high': 0,
-                'default_changed': False,
+                'defaults_changed': False,
+                'defaults': {
+                    'low': 0,
+                    'high': 0,
+                }
             },
             'renal': {
                 'low': None,
                 'high': None,
-                'default_changed': False,
+                'defaults_changed': False,
+                'defaults': {
+                    'low': None,
+                    'high': None,
+                }
             },
-        },
-        'sodium': {
+    },
+    'sodium': {
             'desc': 'Sodium',
             'measure_unit': 'g/kcal',
             'panc': {
                 'low': None,
                 'high': None,
-                'default_changed': False,
+                'defaults_changed': False,
+                'defaults': {
+                    'low': None,
+                    'high': None,
+                }
             },
             'renal': {
                 'low': 0.0004,
                 'high': 0.0012,
-                'default_changed': False,
+                'defaults_changed': False,
+                'defaults': {
+                    'low': 0.0004,
+                    'high': 0.0012,
+                }
             },
-        },
-        'chloride': {
+    },
+    'chloride': {
             'desc': 'Chloride',
             'measure_unit': '%',
             'panc': {
                 'low': None,
                 'high': None,
-                'default_changed': False,
+                'defaults_changed': False,
+                'defaults': {
+                    'low': None,
+                    'high': None,
+                }
             },
             'renal': {
                 'low': None,
                 'high': None,
-                'default_changed': False,
+                'defaults_changed': False,
+                'defaults': {
+                    'low': None,
+                    'high': None,
+                }
             },
-        },
-        'ash': {
+    },
+    'ash': {
             'desc': 'Ash',
             'measure_unit': '%',
             'panc': {
+                'low': None,
+                'high': None,
+                'defaults_changed': False,
+                'defaults': {
                     'low': None,
                     'high': None,
-                    'default_changed': False,
+                }
             },
             'renal': {
                 'low': None,
                 'high': None,
-                'default_changed': False,
+                'defaults_changed': False,
+                'defaults': {
+                    'low': None,
+                    'high': None,
+                }
             },
-        },
-        'phosphorus': {
+    },
+    'phosphorus': {
             'desc': 'Phosphorus',
             'measure_unit': '%',
             'panc': {
                 'low': None,
                 'high': None,
-                'default_changed': False,
+                'defaults_changed': False,
+                'defaults': {
+                    'low': None,
+                    'high': None,
+                }
             },
             'renal': {
                 'low': 0.2,
                 'high': 0.8,
-                'default_changed': False,
+                'defaults_changed': False,
+                'defaults': {
+                    'low': 0.2,
+                    'high': 0.8,
+                }
             },
-        },
-    }
+    },
+}
+
+""" FUNCTIONS """
 
 # create editable parameter table
 
 
-def gen_param_tables(constituents):
-    c = constituents
-    tab_col_1, tab_col_2 = st.columns(2, gap="medium")
-    for condition in ('panc', 'renal'):
-        with tab_col_1 if condition == 'panc' else tab_col_2:
-            st.subheader('Pancreatitis Diet' if condition ==
-                         'panc' else 'Kidney Disease Diet')
-            edited_data = st.data_editor(
-                pd.DataFrame.from_dict({
-                    'min_dry_matter': {
-                        x['desc']: x[condition]['low'] for x in c.values() if x.get(condition).get('low', None) is not None and x.get(condition).get('high', None) is not None
-                    },
-                    'max_dry_matter': {
-                        x['desc']: x[condition]['high'] for x in c.values() if x.get(condition).get('low', None) is not None and x.get(condition).get('high', None) is not None
-                    },
-                    'measure_unit': {
-                        x['desc']: x['measure_unit'] for x in c.values() if x.get(condition).get('low', None) is not None and x.get(condition).get('high', None) is not None
-                    },
-                }),
-                column_config={
-                    'min_dry_matter': st.column_config.NumberColumn(
-                        label="Minimum Dry Matter",
-                    ),
-                    'max_dry_matter': st.column_config.NumberColumn(
-                        label="Maximum Dry Matter",
-                    ),
-                    'measure_unit': st.column_config.TextColumn(
-                        label="Measure Unit",
+def gen_param_tables(constituent_params):
+    edited_constituent_params = {'panc': None, 'renal': None}
+    with st.expander(':green[Click to view or edit the calculation parameters.]'):
+        st.write(
+            'To adjust the calculation parameter(s), simple enter the new value(s) in the fields below.')
+        tab_col_1, tab_col_2 = st.columns(2, gap="small")
+        for condition in ('panc', 'renal',):
+            with tab_col_1 if condition == 'panc' else tab_col_2:
+                with st.container(border=True):
+                    st.subheader(':blue[Pancreatitis Diet]' if condition ==
+                                 'panc' else ':violet[Kidney Disease (Renal) Diet]')
+                    data = pd.DataFrame.from_dict({
+                        'min_dry_matter': {
+                            x['desc']: x[condition]['low'] for x in constituent_params.values() if x.get(condition).get('low', None) is not None and x.get(condition).get('high', None) is not None
+                        },
+                        'max_dry_matter': {
+                            x['desc']: x[condition]['high'] for x in constituent_params.values() if x.get(condition).get('low', None) is not None and x.get(condition).get('high', None) is not None
+                        },
+                        'measure_unit': {
+                            x['desc']: x['measure_unit'] for x in constituent_params.values() if x.get(condition).get('low', None) is not None and x.get(condition).get('high', None) is not None
+                        },
+                    })
+                    edited_constituent_params[condition] = pd.DataFrame.to_dict(
+                        st.data_editor(
+                            data,
+                            column_config={
+                                'min_dry_matter': st.column_config.NumberColumn(
+                                    label="Minimum Dry Matter",
+                                ),
+                                'max_dry_matter': st.column_config.NumberColumn(
+                                    label="Maximum Dry Matter",
+                                ),
+                                'measure_unit': st.column_config.TextColumn(
+                                    label="Measure Unit",
+                                )
+                            },
+                            disabled=['', 'measure_unit'],
+                            key=f'{condition}_constituent_param_editor',
+                            use_container_width=True,
+                        )
                     )
-                },
-                disabled=['', 'measure_unit'],
-                key=f'{condition}_constituent_param_editor'
-            )
-        update_constituent_params(c, edited_data, condition)
+        update_constituent_params(
+            constituent_params, edited_constituent_params)
 
 
 # function to update the constituent params upon user edit
-@st.cache_data
-def update_constituent_params(original_params, edited_params, condition):
-    for k, v in edited_params.items():
-        if k == 'min_dry_matter':
-            {original_params[a][condition].update({'low': y, 'default_changed': True}) for x, y in v.items()
-                for a, b in original_params.items() if b.get('desc') == x if original_params[a][condition]['low'] != y}
-        elif k == 'max_dry_matter':
-            {original_params[a][condition].update({'high': y, 'default_changed': True}) for x, y in v.items()
-                for a, b in original_params.items() if b.get('desc') == x if original_params[a][condition]['high'] != y}
 
+def update_constituent_params(constituent_params, edited_constituent_params):
+    for condition, data in edited_constituent_params.items():
+        for k, v in data.items():
+            if k == 'min_dry_matter':
+                {constituent_params[a][condition].update({'low': y, 'default_changed': True}) for x, y in v.items()
+                    for a, b in constituent_params.items() if b.get('desc') == x if constituent_params[a][condition]['low'] != y}
+            elif k == 'max_dry_matter':
+                {constituent_params[a][condition].update({'high': y, 'default_changed': True}) for x, y in v.items()
+                    for a, b in constituent_params.items() if b.get('desc') == x if constituent_params[a][condition]['high'] != y}
 
 # calculate dry matter fat (%)
 
@@ -246,9 +337,10 @@ def calc_protein(protein, moisture):
 # calculate dry matter carbohydrate (%)
 
 
-@st.cache_data
 def calc_carbs(carbs, moisture):
-    return (carbs / (100-moisture)) * 100
+    dm_non_carbs = st.session_state.dm_fat + st.session_state.dm_protein + \
+        st.session_state.dm_fibre + st.session_state.dm_ash
+    return ((carbs / (100-moisture)) * 100) if carbs else 100 - dm_non_carbs
 
 # calculate dry matter fibre (%)
 
@@ -309,7 +401,6 @@ def calc_kcal_per_g(kcal, kcal_measure_weight, moisture):
 # function to create pie chart
 
 
-@st.cache_data
 def create_pie(nutrients):
     sorted_nutrients = {k: v for k, v in sorted(
         nutrients.items(), key=lambda item: item[1], reverse=True)}
@@ -331,7 +422,6 @@ def create_pie(nutrients):
 # function to create bar chart
 
 
-@st.cache_data
 def create_bar_chart(data):
     df = pd.DataFrame.from_dict(data, orient='index').reset_index()
     df.columns = ['Nutrient', 'Percentage']
@@ -347,42 +437,40 @@ def create_bar_chart(data):
 # function to display the metrics in charts
 
 
-@st.cache_data
-def display_charts(c, fat, fibre, protein, carbs, ash, phosphorus, chloride, sodium, sugar):
-    st.subheader("Macronutrient Proportion Breakdown")
+def display_charts(constituent_params, fat, fibre, protein, carbs, ash, phosphorus, chloride, sodium, sugar):
+    st.subheader(":grey[Macronutrient Proportion Breakdown]")
     if fat and fibre and protein:
-        create_pie({c['fat']['desc']: fat,
-                    c['protein']['desc']: protein,
-                    c['carbs']['desc']: carbs,
-                    c['fibre']['desc']: fibre,
-                    c['ash']['desc']: ash})
+        create_pie({constituent_params['fat']['desc']: fat,
+                    constituent_params['protein']['desc']: protein,
+                    constituent_params['carbs']['desc']: carbs,
+                    constituent_params['fibre']['desc']: fibre,
+                    constituent_params['ash']['desc']: ash})
     else:
         st.markdown("Insufficient data to display")
     st.divider()
-    st.subheader("Macronutrient Percentages")
+    st.subheader(":grey[Macronutrient Percentages]")
     if fat or fibre or protein:
-        create_bar_chart({c['fat']['desc']: fat,
-                          c['protein']['desc']: protein,
-                          c['carbs']['desc']: carbs,
-                          c['fibre']['desc']: fibre,
-                          c['ash']['desc']: ash})
+        create_bar_chart({constituent_params['fat']['desc']: fat,
+                          constituent_params['protein']['desc']: protein,
+                          constituent_params['carbs']['desc']: carbs,
+                          constituent_params['fibre']['desc']: fibre,
+                          constituent_params['ash']['desc']: ash})
     else:
         st.markdown("Insufficient data to display")
 
-    st.subheader("Micronutrient Percentages")
+    st.subheader(":grey[Micronutrient Percentages]")
 
     if phosphorus or sodium or chloride:
-        create_bar_chart({c['phosphorus']['desc']: phosphorus,
-                          c['sodium']['desc']: sodium,
-                          c['chloride']['desc']: chloride,
-                          c['sugar']['desc']: sugar})
+        create_bar_chart({constituent_params['phosphorus']['desc']: phosphorus,
+                          constituent_params['sodium']['desc']: sodium,
+                          constituent_params['chloride']['desc']: chloride,
+                          constituent_params['sugar']['desc']: sugar})
     else:
         st.markdown("Insufficient data to display")
 
 # function to ensure metrics required for calculations have been submitted
 
 
-@st.cache_data
 def enforce_required(kcal_measure_weight, kcal, salt, salt_measure_weight, sugar, sugar_measure_weight):
     test_passed = True
     if not kcal_measure_weight or not kcal:
@@ -402,156 +490,232 @@ def enforce_required(kcal_measure_weight, kcal, salt, salt_measure_weight, sugar
 # function to run pancreatitis tests
 
 
-@st.cache_data
-def run_panc_tests(c, dm_fat, dm_protein, dm_carbs, dm_sugar):
+def run_panc_tests(constituent_params, dm_fat, dm_protein, dm_carbs, dm_sugar):
     result = []
     # test fat
-    if dm_fat >= c['fat']['panc']['low'] and dm_fat <= c['fat']['panc']['high']:
-        result.append({'nutrient': c['fat']['desc'],
+    if dm_fat >= constituent_params['fat']['panc']['low'] and dm_fat <= constituent_params['fat']['panc']['high']:
+        result.append({'nutrient': constituent_params['fat']['desc'],
                        'pass': True,
-                       'reason': None})
-    elif dm_fat < c['fat']['panc']['low']:
-        result.append({'nutrient': c['fat']['desc'],
+                       'reason': None,
+                       'default_param_changed': constituent_params['fat']['panc']['defaults_changed'],
+                       'defaults': constituent_params['fat']['panc']['defaults'],
+                       })
+    elif dm_fat < constituent_params['fat']['panc']['low']:
+        result.append({'nutrient': constituent_params['fat']['desc'],
                        'pass': False,
                        'reason': 'low',
-                       'delta': c['fat']['panc']['low'] - dm_fat,
-                       'delta_pc': (((c['fat']['panc']['low'] - dm_fat) / dm_fat) * 100) if dm_fat else 100})
-    elif dm_fat > c['fat']['panc']['high']:
-        result.append({'nutrient': c['fat']['desc'],
+                       'delta': constituent_params['fat']['panc']['low'] - dm_fat,
+                       'delta_pc': (((constituent_params['fat']['panc']['low'] - dm_fat) / dm_fat) * 100) if dm_fat else 100,
+                       'default_param_changed': constituent_params['fat']['panc']['defaults_changed'],
+                       'defaults': constituent_params['fat']['panc']['defaults'],
+                       })
+    elif dm_fat > constituent_params['fat']['panc']['high']:
+        result.append({'nutrient': constituent_params['fat']['desc'],
                        'pass': False,
                        'reason': 'high',
-                       'delta': dm_fat - c['fat']['panc']['high'],
-                       'delta_pc': (((dm_fat - c['fat']['panc']['high']) / c['fat']['panc']['high']) * 100)})
+                       'delta': dm_fat - constituent_params['fat']['panc']['high'],
+                       'delta_pc': (((dm_fat - constituent_params['fat']['panc']['high']) / constituent_params['fat']['panc']['high']) * 100 if constituent_params['fat']['panc']['high'] else 100),
+                       'default_param_changed': constituent_params['fat']['panc']['defaults_changed'],
+                       'defaults': constituent_params['fat']['panc']['defaults'],
+                       })
     #  test protein
-    if dm_protein >= c['protein']['panc']['low'] and dm_protein <= c['protein']['panc']['high']:
-        result.append({'nutrient': c['protein']['desc'],
+    if dm_protein >= constituent_params['protein']['panc']['low'] and dm_protein <= constituent_params['protein']['panc']['high']:
+        result.append({'nutrient': constituent_params['protein']['desc'],
                        'pass': True,
-                       'reason': None})
-    elif dm_protein < c['protein']['panc']['low']:
-        result.append({'nutrient': c['protein']['desc'],
+                       'reason': None,
+                       'default_param_changed': constituent_params['protein']['panc']['defaults_changed'],
+                       'defaults': constituent_params['protein']['panc']['defaults'],
+                       })
+    elif dm_protein < constituent_params['protein']['panc']['low']:
+        result.append({'nutrient': constituent_params['protein']['desc'],
                        'pass': False,
                        'reason': 'low',
-                       'delta': c['protein']['panc']['low'] - dm_protein,
-                       'delta_pc': (((c['protein']['panc']['low'] - dm_protein) / dm_protein) * 100) if dm_protein else 100})
-    elif dm_protein > c['protein']['panc']['high']:
-        result.append({'nutrient': c['protein']['desc'],
+                       'delta': constituent_params['protein']['panc']['low'] - dm_protein,
+                       'delta_pc': (((constituent_params['protein']['panc']['low'] - dm_protein) / dm_protein) * 100) if dm_protein else 100,
+                       'default_param_changed': constituent_params['protein']['panc']['defaults_changed'],
+                       'defaults': constituent_params['protein']['panc']['defaults'],
+                       })
+    elif dm_protein > constituent_params['protein']['panc']['high']:
+        result.append({'nutrient': constituent_params['protein']['desc'],
                        'pass': False,
                        'reason': 'high',
-                       'delta': dm_protein - c['protein']['panc']['high'],
-                       'delta_pc': (((dm_protein - c['protein']['panc']['high']) / c['protein']['panc']['high']) * 100)})
+                       'delta': dm_protein - constituent_params['protein']['panc']['high'],
+                       'delta_pc': (((dm_protein - constituent_params['protein']['panc']['high']) / constituent_params['protein']['panc']['high']) * 100) if constituent_params['protein']['panc']['high'] else 100,
+                       'default_param_changed': constituent_params['protein']['panc']['defaults_changed'],
+                       'defaults': constituent_params['protein']['panc']['defaults'],
+                       })
     #  test carbs
-    if dm_carbs <= c['carbs']['panc']['high']:
-        result.append({'nutrient': c['carbs']['desc'],
+    if dm_carbs >= constituent_params['carbs']['panc']['low'] and dm_carbs <= constituent_params['carbs']['panc']['high']:
+        result.append({'nutrient': constituent_params['carbs']['desc'],
                        'pass': True,
-                       'reason': None})
-    else:
-        result.append({'nutrient': c['carbs']['desc'],
+                       'reason': None,
+                       'default_param_changed': constituent_params['carbs']['panc']['defaults_changed'],
+                       'defaults': constituent_params['carbs']['panc']['defaults'],
+                       })
+    elif dm_carbs < constituent_params['carbs']['panc']['low']:
+        result.append({'nutrient': constituent_params['carbs']['desc'],
+                       'pass': False,
+                       'reason': 'low',
+                       'delta': constituent_params['carbs']['panc']['low'] - dm_carbs,
+                       'delta_pc': (((constituent_params['carbs']['panc']['low'] - dm_carbs) / dm_carbs) * 100) if dm_carbs else 100,
+                       'default_param_changed': constituent_params['carbs']['panc']['defaults_changed'],
+                       'defaults': constituent_params['carbs']['panc']['defaults'],
+                       })
+    elif dm_carbs > constituent_params['carbs']['panc']['high']:
+        result.append({'nutrient': constituent_params['carbs']['desc'],
                        'pass': False,
                        'reason': 'high',
-                       'delta': dm_carbs - c['carbs']['panc']['high'],
-                       'delta_pc': (((dm_carbs - c['carbs']['panc']['high']) / c['carbs']['panc']['high']) * 100)})
+                       'delta': dm_carbs - constituent_params['carbs']['panc']['high'],
+                       'delta_pc': (((dm_carbs - constituent_params['carbs']['panc']['high']) / constituent_params['carbs']['panc']['high']) * 100) if constituent_params['carbs']['panc']['high'] else 100,
+                       'default_param_changed': constituent_params['carbs']['panc']['defaults_changed'],
+                       'defaults': constituent_params['carbs']['panc']['defaults'],
+                       })
     # test sugar
-    if dm_sugar:
-        result.append({'nutrient': c['sugar']['desc'],
+    if dm_sugar >= constituent_params['sugar']['panc']['low'] and dm_sugar <= constituent_params['sugar']['panc']['high']:
+        result.append({'nutrient': constituent_params['sugar']['desc'],
+                       'pass': True,
+                       'reason': None,
+                       'default_param_changed': constituent_params['sugar']['panc']['defaults_changed'],
+                       'defaults': constituent_params['sugar']['panc']['defaults'],
+                       })
+    elif dm_sugar < constituent_params['sugar']['panc']['low']:
+        result.append({'nutrient': constituent_params['sugar']['desc'],
+                       'pass': False,
+                       'reason': 'low',
+                       'delta': constituent_params['sugar']['panc']['low'] - dm_sugar,
+                       'delta_pc': (((constituent_params['sugar']['panc']['low'] - dm_sugar) / dm_sugar) * 100) if dm_sugar else 100,
+                       'default_param_changed': constituent_params['sugar']['panc']['defaults_changed'],
+                       'defaults': constituent_params['sugar']['panc']['defaults'],
+                       })
+    elif dm_sugar > constituent_params['sugar']['panc']['high']:
+        result.append({'nutrient': constituent_params['sugar']['desc'],
                        'pass': False,
                        'reason': 'high',
-                       'delta': dm_sugar,
-                       'delta_pc': 100})
+                       'delta': dm_sugar - constituent_params['sugar']['panc']['high'],
+                       'delta_pc': (((dm_sugar - constituent_params['sugar']['panc']['high']) / constituent_params['sugar']['panc']['high']) * 100) if constituent_params['sugar']['panc']['high'] else 100,
+                       'default_param_changed': constituent_params['sugar']['panc']['defaults_changed'],
+                       'defaults': constituent_params['sugar']['panc']['defaults'],
+                       })
     return result
 
 # function to run renal tests
 
 
-@st.cache_data
-def run_renal_tests(c, dm_phosphorus, dm_protein, dm_sodium, dm_kcal_per_g):
+def run_renal_tests(constituent_params, dm_phosphorus, dm_protein, dm_sodium, dm_kcal_per_g):
     result = []
     # test phosphorus
-    if dm_phosphorus >= c['phosphorus']['renal']['low'] and dm_phosphorus <= c['phosphorus']['renal']['high']:
-        result.append({'nutrient': c['phosphorus']['desc'],
-                       'pass': True, 'reason': None})
-    elif dm_phosphorus < c['phosphorus']['renal']['low']:
-        result.append({'nutrient': c['phosphorus']['desc'],
-                       'pass': False,
-                       'reason': 'low',
-                       'delta': c['phosphorus']['renal']['low'] - dm_phosphorus,
-                       'delta_pc': (((c['phosphorus']['renal']['low'] - dm_phosphorus) / dm_phosphorus) * 100) if dm_phosphorus else 100,
-                       'unit': '%'})
-    elif dm_phosphorus > c['phosphorus']['renal']['high']:
-        result.append({'nutrient': c['phosphorus']['desc'],
-                       'pass': False,
-                       'reason': 'high',
-                       'delta': dm_phosphorus - c['phosphorus']['renal']['high'],
-                       'delta_pc': (((dm_phosphorus - c['phosphorus']['renal']['high']) / c['phosphorus']['renal']['high']) * 100),
-                       'unit': '%'})
-    #  test protein
-    if dm_protein >= c['protein']['renal']['low'] and dm_protein <= c['protein']['renal']['high']:
-        result.append({'nutrient': c['protein']['desc'],
+    if dm_phosphorus >= constituent_params['phosphorus']['renal']['low'] and dm_phosphorus <= constituent_params['phosphorus']['renal']['high']:
+        result.append({'nutrient': constituent_params['phosphorus']['desc'],
                        'pass': True,
-                       'reason': None})
-    elif dm_protein < c['protein']['renal']['low']:
-        result.append({'nutrient': c['protein']['desc'],
+                       'reason': None,
+                       'default_param_changed': constituent_params['phosphorus']['renal']['defaults_changed'],
+                       'defaults': constituent_params['phosphorus']['renal']['defaults'],
+                       })
+    elif dm_phosphorus < constituent_params['phosphorus']['renal']['low']:
+        result.append({'nutrient': constituent_params['phosphorus']['desc'],
                        'pass': False,
                        'reason': 'low',
-                       'delta': c['protein']['renal']['low'] - dm_protein,
-                       'delta_pc': (((c['protein']['renal']['low'] - dm_protein) / dm_protein) * 100) if dm_protein else 100,
-                       'unit': '%'})
-    elif dm_protein > c['protein']['renal']['high']:
-        result.append({'nutrient': c['protein']['desc'],
+                       'delta': constituent_params['phosphorus']['renal']['low'] - dm_phosphorus,
+                       'delta_pc': (((constituent_params['phosphorus']['renal']['low'] - dm_phosphorus) / dm_phosphorus) * 100) if dm_phosphorus else 100,
+                       'unit': '%',
+                       'default_param_changed': constituent_params['phosphorus']['renal']['defaults_changed'],
+                       'defaults': constituent_params['phosphorus']['renal']['defaults'],
+                       })
+    elif dm_phosphorus > constituent_params['phosphorus']['renal']['high']:
+        result.append({'nutrient': constituent_params['phosphorus']['desc'],
                        'pass': False,
                        'reason': 'high',
-                       'delta': dm_protein - c['protein']['renal']['high'],
-                       'delta_pc': (((dm_protein - c['protein']['renal']['high']) / c['protein']['renal']['high']) * 100),
-                       'unit': '%'})
+                       'delta': dm_phosphorus - constituent_params['phosphorus']['renal']['high'],
+                       'delta_pc': (((dm_phosphorus - constituent_params['phosphorus']['renal']['high']) / constituent_params['phosphorus']['renal']['high']) * 100) if constituent_params['phosphorus']['renal']['high'] else 100,
+                       'unit': '%',
+                       'default_param_changed': constituent_params['phosphorus']['renal']['defaults_changed'],
+                       'defaults': constituent_params['phosphorus']['renal']['defaults'],
+                       })
+    #  test protein
+    if dm_protein >= constituent_params['protein']['renal']['low'] and dm_protein <= constituent_params['protein']['renal']['high']:
+        result.append({'nutrient': constituent_params['protein']['desc'],
+                       'pass': True,
+                       'reason': None,
+                       'default_param_changed': constituent_params['protein']['renal']['defaults_changed'],
+                       'defaults': constituent_params['protein']['renal']['defaults'],
+                       })
+    elif dm_protein < constituent_params['protein']['renal']['low']:
+        result.append({'nutrient': constituent_params['protein']['desc'],
+                       'pass': False,
+                       'reason': 'low',
+                       'delta': constituent_params['protein']['renal']['low'] - dm_protein,
+                       'delta_pc': (((constituent_params['protein']['renal']['low'] - dm_protein) / dm_protein) * 100) if dm_protein else 100,
+                       'unit': '%',
+                       'default_param_changed': constituent_params['protein']['renal']['defaults_changed'],
+                       'defaults': constituent_params['protein']['renal']['defaults'],
+                       })
+    elif dm_protein > constituent_params['protein']['renal']['high']:
+        result.append({'nutrient': constituent_params['protein']['desc'],
+                       'pass': False,
+                       'reason': 'high',
+                       'delta': dm_protein - constituent_params['protein']['renal']['high'],
+                       'delta_pc': (((dm_protein - constituent_params['protein']['renal']['high']) / constituent_params['protein']['renal']['high']) * 100) if constituent_params['protein']['renal']['high'] else 100,
+                       'unit': '%',
+                       'default_param_changed': constituent_params['protein']['renal']['defaults_changed'],
+                       'defaults': constituent_params['protein']['renal']['defaults'],
+                       })
     # test sodium
     dm_food_g_per_kcal = 1 / dm_kcal_per_g
     dm_sodium_g_per_kcal = dm_food_g_per_kcal * \
         (dm_sodium / 100) if dm_sodium else 0
-    if dm_sodium_g_per_kcal >= c['sodium']['renal']['low'] and dm_sodium_g_per_kcal <= c['sodium']['renal']['high']:
+    if dm_sodium_g_per_kcal >= constituent_params['sodium']['renal']['low'] and dm_sodium_g_per_kcal <= constituent_params['sodium']['renal']['high']:
         result.append(
-            {'nutrient': c['sodium']['desc'],
+            {'nutrient': constituent_params['sodium']['desc'],
                 'pass': True,
-                'reason': None})
-    elif dm_sodium_g_per_kcal < c['sodium']['renal']['low']:
+                'reason': None,
+                'default_param_changed': constituent_params['sodium']['renal']['defaults_changed'],
+                'defaults': constituent_params['sodium']['renal']['defaults'],
+             })
+    elif dm_sodium_g_per_kcal < constituent_params['sodium']['renal']['low']:
         result.append(
-            {'nutrient': c['sodium']['desc'],
+            {'nutrient': constituent_params['sodium']['desc'],
                 'pass': False,
                 'reason': 'low',
-                'delta': c['sodium']['renal']['low'] - dm_sodium_g_per_kcal,
-                'delta_pc': (((c['sodium']['renal']['low'] - dm_sodium_g_per_kcal) / dm_sodium_g_per_kcal) * 100) if dm_sodium_g_per_kcal else 100,
-                'unit': 'g/kcal'})
-    elif dm_sodium_g_per_kcal > c['sodium']['renal']['high']:
+                'delta': constituent_params['sodium']['renal']['low'] - dm_sodium_g_per_kcal,
+                'delta_pc': (((constituent_params['sodium']['renal']['low'] - dm_sodium_g_per_kcal) / dm_sodium_g_per_kcal) * 100) if dm_sodium_g_per_kcal else 100,
+                'unit': 'g/kcal',
+                'default_param_changed': constituent_params['sodium']['renal']['defaults_changed'],
+                'defaults': constituent_params['sodium']['renal']['defaults'],
+             })
+    elif dm_sodium_g_per_kcal > constituent_params['sodium']['renal']['high']:
         result.append(
-            {'nutrient': c['sodium']['desc'],
+            {'nutrient': constituent_params['sodium']['desc'],
                 'pass': False,
                 'reason': 'high',
-                'delta': dm_sodium_g_per_kcal - c['sodium']['renal']['high'],
-                'delta_pc': (((dm_sodium_g_per_kcal - c['sodium']['renal']['low']) / c['sodium']['renal']['low']) * 100),
-                'unit': 'g/kcal'})
+                'delta': dm_sodium_g_per_kcal - constituent_params['sodium']['renal']['high'],
+                'delta_pc': (((dm_sodium_g_per_kcal - constituent_params['sodium']['renal']['low']) / constituent_params['sodium']['renal']['low']) * 100) if constituent_params['sodium']['renal']['high'] else 100,
+                'unit': 'g/kcal',
+                'default_param_changed': constituent_params['sodium']['renal']['defaults_changed'],
+                'defaults': constituent_params['sodium']['renal']['defaults'],
+             })
     return result
 
 #  function to display calculations
 
 
-@st.cache_data
-def display_calculations(c):
+def display_calculations(constituent_params, fat, protein, carbs, fibre, ash, phosphorus, sodium, chloride, sugar, kcal_per_g):
     dry_matter_stats_df = pd.DataFrame.from_dict([{
-        c['fat']['desc']: st.session_state.dm_fat,
-        c['protein']['desc']: st.session_state.dm_protein,
-        c['carbs']['desc']: st.session_state.dm_carbs,
-        c['fibre']['desc']: st.session_state.dm_fibre,
-        c['ash']['desc']: st.session_state.dm_ash,
-        c['phosphorus']['desc']: st.session_state.dm_phosphorus,
-        c['sodium']['desc']: st.session_state.dm_sodium,
-        c['chloride']['desc']: st.session_state.dm_chloride,
-        c['sugar']['desc']: st.session_state.dm_sugar}])
+        constituent_params['fat']['desc']: fat,
+        constituent_params['protein']['desc']: protein,
+        constituent_params['carbs']['desc']: carbs,
+        constituent_params['fibre']['desc']: fibre,
+        constituent_params['ash']['desc']: ash,
+        constituent_params['phosphorus']['desc']: phosphorus,
+        constituent_params['sodium']['desc']: sodium,
+        constituent_params['chloride']['desc']: chloride,
+        constituent_params['sugar']['desc']: sugar}])
     dry_matter_stats_df = pd.melt(dry_matter_stats_df,
                                   var_name='Dry Matter Constituent',
                                   value_name='Value (%)',
                                   ignore_index=True)
     dry_matter_stats_df.dropna(inplace=True)
     with st.container(border=True):
-        st.markdown(f'Calories per dry matter gram (kcal): {
-                    st.session_state.dm_kcal_per_g:.2f}')
+        st.markdown(f'Calories per dry matter gram (kcal): {kcal_per_g:.2f}')
     st.dataframe(
         dry_matter_stats_df,
         hide_index=True,
@@ -566,11 +730,10 @@ def display_calculations(c):
 # function to display results
 
 
-@st.cache_data
 def display_results(food_name, panc, renal):
     # pancreatitis diet
     with st.container(border=True):
-        st.subheader('Pancreatitis Diet')
+        st.subheader(':blue[Pancreatitis Diet]')
         if all(d.get('pass', False) == True for d in panc):
             st.success(
                 f''':white[{food_name} is suitable for a pancreatitis diet]''', icon='👍')
@@ -582,13 +745,17 @@ def display_results(food_name, panc, renal):
                     delta_pc = round(
                         test['delta_pc'], 2) if test['delta_pc'] <= 100 else 'over 100'
                     st.markdown(f"{test['nutrient']} is {delta_pc}% too {
-                                test['reason']}")
+                                test['reason']}", help='Percentage indicates the difference between the constituent amount and the recommendation. For example, "100% too high" would mean the food contained twice as much that constituent as would be appropriate for that diet.')
     # renal diet
     with st.container(border=True):
-        st.subheader('Renal diet')
+        st.subheader(':violet[Renal Diet]')
         if all(d.get('pass', False) == True for d in renal):
             st.success(
                 f''':white[{food_name} is suitable for a renal diet]''', icon='👍')
+            changed = any(d.get('default_param_changed') for d in renal)
+            st.warning(f"""Warning: The default calculation parameters have been
+                       changed for the following constituents: {', '.join([
+                d['nutrient'] for d in renal if d.get('default_param_changed')])}""")
         else:
             st.error(f''':white[{food_name} is not suitable for dogs with kidney disease.]''',
                      icon='👎')
@@ -597,33 +764,30 @@ def display_results(food_name, panc, renal):
                     delta_pc = round(
                         test['delta_pc'], 2) if test['delta_pc'] <= 100 else 'over 100'
                     st.markdown(f"{test['nutrient']} is {delta_pc}% too {
-                                test['reason']}")
+                                test['reason']}", help='Percentage indicates the *proportional difference* between the constituent amount and the recommendation. For example, "100% too high" would mean the food contains *twice* as much of that constituent as would be appropriate for the diet.\n\nNote that the figure does not refer to the *crude difference* in actual percentages between the food and the recommendation (e.g., if the recommended value is 12%, but the actual value is 15%, the *crude difference* would be 12-3 = 3%, but the *proportional difference* (as used in this metric) would be 15/12 = 1.25, which is to say 15% is 25% greater than the recommended value of 12%).')
 
-
-# INITIATE CONSTITUENT PARAMS SESSION STATE
-if 'constituent_params' not in st.session_state:
-    st.session_state.constituent_params = init_constituent_params()
-
-""" ASSIGN CONSTITUENT PARAMS SESSION STATE TO EASY TO REFERENCE POINTER """
-c = st.session_state.constituent_params
 
 """ PAGE 1 """
-st.title("Dog's Dinner Nutrient Calculator")
-st.subheader(
-    "'Dry Matter Basis' Calculation for Renal & Pancreatitis Diet Suitability")
-st.warning(":blue[This app is currently in beta testing, therefore the results may be inaccurate. Please do not rely solely on the information provided here.]")
-st.markdown("""The purpose of this calculator is to provide 'Dry Matter Basis' comparison between commercially available dog foods, where the 'analytical constituents' are provided by the manufacturer 'As Fed'.
 
-Specifically, the calculator assesses the suitability of the dog food constituents for 'renal' and 'pancreatitis' diets, for dogs with kidney disease and/or disease of the pancreas.
-            
-The calculations used to establish the suitability of the dog food constituents submitted are based mainly on the information provided by the [All About Dog Food](https://allaboutdogfood.co.uk) website.
-            """)
+st.info(':blue[This app is currently in beta testing, therefore the results may be inaccurate. Please do not rely solely on the information provided here.]', icon="ℹ️")
+st.title(":rainbow[Dog's Dinner Constituent Calculator]")
+st.subheader(
+    ":grey[Dry Matter Basis Calculation Tool for Renal & Pancreatitis Diets]", divider=False)
+with st.expander(':green[Click to expand details about what this app does, and why it does it.]'):
+    st.markdown(
+        "The purpose of this calculator is to provide 'Dry Matter Basis' comparison between commercially available dog foods, where the 'analytical constituents' are provided by the manufacturer 'As Fed'.\n\nConverting the 'As Fed' constituent measures to a 'Dry Matter Basis' basis allows for a more accurate comparison between wet and dry foods.\n\nSpecifically, the calculator assesses the suitability of the food constituents for dogs with kidney disease ('renal diet'), and for dogs with disease of the pancreas ('pancreatitis diet').\n\nDefault values for the calculations used to establish the suitability of the dog food constituents are based mainly on the information provided by the [All About Dog Food](https://allaboutdogfood.co.uk) website.")
+
+with st.container(border=True):
+    st.subheader(":grey[Calculation Parameters]")
+    st.markdown(
+        """The default parameters for the calculations are currently set largely with reference to the information published at [All About Dog Food](https://www.allaboutdogfood.co.uk).""")
+
+    gen_param_tables(constituent_params)
 
 col_1, col_2, col_3 = st.columns(3, gap="medium")
-
 with col_1:
     with st.container(border=True):
-        st.header("Container Content ('As Fed')", divider="grey")
+        st.subheader(":grey[Food Content 'As Fed']", divider="red")
 
         st.session_state.food_name = st.text_input(
             label="Food name"
@@ -637,86 +801,84 @@ with col_1:
                 )
             with cal_col_2:
                 kcal_measure_weight = st.number_input(
-                    label="Per Weight of Food (g)", key='kcal_measure_weight', min_value=0.00, max_value=100000.0
+                    label="per Weight of Food (g)", key='kcal_measure_weight', min_value=0.00, max_value=100000.0
                 )
 
         moisture = st.number_input(
-            label="Moisture Content (%)", min_value=0.00, max_value=100.0
+            label="Moisture Content (%)", min_value=0.00, max_value=100.0,
+            help="If moisture content is not listed for dry foods, it may be estimated to be around 10%."
         )
 
         fat = st.number_input(
-            label=f"Crude {c['fat']['desc']} ({c['fat']['measure_unit']})", min_value=0.00, max_value=100.0
+            label=f"Crude {constituent_params['fat']['desc']} ({constituent_params['fat']['measure_unit']})", min_value=0.00, max_value=100.0
         )
 
         protein = st.number_input(
-            label=f"Crude {c['protein']['desc']} ({c['protein']['measure_unit']})", min_value=0.00, max_value=100.0
+            label=f"Crude {constituent_params['protein']['desc']} ({constituent_params['protein']['measure_unit']})", min_value=0.00, max_value=100.0
         )
 
         carbs = st.number_input(
-            label=f"Crude {c['carbs']['desc']} ({c['carbs']['measure_unit']})", min_value=0.00, max_value=100.0
+            label=f"Crude {constituent_params['carbs']['desc']} ({constituent_params['carbs']['measure_unit']})", min_value=0.00, max_value=100.0
         )
 
         fibre = st.number_input(
-            label=f"Crude {c['fibre']['desc']} ({c['fibre']['measure_unit']})", min_value=0.00, max_value=100.0
+            label=f"Crude {constituent_params['fibre']['desc']} ({constituent_params['fibre']['measure_unit']})", min_value=0.00, max_value=100.0
         )
 
         ash = st.number_input(
-            label=f"{c['ash']['desc']} ({c['ash']['measure_unit']})", min_value=0.00, max_value=100.0
+            label=f"{constituent_params['ash']['desc']} ({constituent_params['ash']['measure_unit']})", min_value=0.00, max_value=100.0
         )
 
         phosphorus = st.number_input(
-            label=f"{c['phosphorus']['desc']} ({c['phosphorus']['measure_unit']})", min_value=0.00, max_value=100.0
+            label=f"{constituent_params['phosphorus']['desc']} ({constituent_params['phosphorus']['measure_unit']})", min_value=0.00, max_value=100.0
         )
 
         sodium = st.number_input(
-            label=f"{c['sodium']['desc']} ({c['sodium']['measure_unit']})", min_value=0.00, max_value=100.0
+            label=f"{constituent_params['sodium']['desc']} ({constituent_params['sodium']['measure_unit']})", min_value=0.00, max_value=100.0
         )
 
         chloride = st.number_input(
-            label=f"{c['chloride']['desc']} ({c['chloride']['measure_unit']})", min_value=0.00, max_value=100.0
+            label=f"{constituent_params['chloride']['desc']} ({constituent_params['chloride']['measure_unit']})", min_value=0.00, max_value=100.0
         )
 
         with st.container(border=True):
             salt_col_1, salt_col_2 = st.columns(2)
             with salt_col_1:
                 salt = st.number_input(
-                    label="Added Salt (g)", key='salt', min_value=0.00, max_value=100000.0
+                    label="Added Salt (g)", key='salt', min_value=0.00, max_value=100000.0,
+                    help="Added salt is assumed to be composed of 40% Sodium and 60% Chloride, as referenced in the [European Union's Knowledge for Policy documentation](https://knowledge4policy.ec.europa.eu/health-promotion-knowledge-gateway/dietary-saltsodium_en)"
                 )
             with salt_col_2:
                 salt_measure_weight = st.number_input(
-                    label="Per weight of food (g)", key="salt_measure_weight", min_value=0.00, max_value=100000.0
+                    label="per weight of food (g)", key="salt_measure_weight", min_value=0.00, max_value=100000.0
                 )
 
         with st.container(border=True):
             sugar_col_1, sugar_col_2 = st.columns(2)
             with sugar_col_1:
                 sugar = st.number_input(
-                    label=f"{c['sugar']['desc']} ({c['sugar']['measure_unit']})", key='sugar', min_value=0.00, max_value=100000.0
+                    label=f"{constituent_params['sugar']['desc']} ({constituent_params['sugar']['measure_unit']})", key='sugar', min_value=0.00, max_value=100000.0
                 )
             with sugar_col_2:
                 sugar_measure_weight = st.number_input(
-                    label="Per weight of food (g)", key="sugar_measure_weight", min_value=0.00, max_value=100000.0
+                    label="per weight of food (g)", key="sugar_measure_weight", min_value=0.00, max_value=100000.0
                 )
-
-        st.divider()
-        st.caption(
-            "Added salt is assumed to be composed of 40% Sodium and 60% Chloride, as referenced in the [European Union's Knowledge for Policy documentation](https://knowledge4policy.ec.europa.eu/health-promotion-knowledge-gateway/dietary-saltsodium_en)")
-
 with col_2:
     with st.container(border=True):
-        st.header("Dry Matter Basis (Results)", divider="grey")
+        st.subheader(":grey[Dry Matter Basis (Results)]", divider="red")
         # run the calculations
         if enforce_required(kcal_measure_weight, kcal, salt, salt_measure_weight, sugar, sugar_measure_weight):
             st.session_state.dm_fat = round(
                 calc_fat(fat, moisture), 3)
             st.session_state.dm_protein = round(
                 calc_protein(protein, moisture), 3)
-            st.session_state.dm_carbs = round(
-                calc_carbs(carbs if carbs else 100 - (fat + protein + fibre + ash), moisture), 3)
             st.session_state.dm_fibre = round(
-                calc_carbs(fibre, moisture), 3)
+                calc_fibre(fibre, moisture), 3)
             st.session_state.dm_ash = round(
-                calc_phosphorus(ash, moisture), 3)
+                calc_ash(ash, moisture), 3)
+            st.session_state.dm_carbs = round(
+                # carbs has to be below fat, protein, fibre & ash
+                calc_carbs(carbs, moisture), 3)
             st.session_state.dm_phosphorus = round(
                 calc_phosphorus(phosphorus, moisture), 3)
             st.session_state.dm_sodium = round(
@@ -730,50 +892,55 @@ with col_2:
             st.session_state.dm_kcal_measure_weight = round(
                 calc_kcal_measure_weight(kcal_measure_weight, moisture), 3)
             # display output
-            display_calculations(c=c)
+            display_calculations(
+                constituent_params=constituent_params,
+                ash=st.session_state.dm_ash,
+                fat=st.session_state.dm_fat,
+                protein=st.session_state.dm_protein,
+                carbs=st.session_state.dm_carbs,
+                sugar=st.session_state.dm_sugar,
+                fibre=st.session_state.dm_fibre,
+                phosphorus=st.session_state.dm_phosphorus,
+                sodium=st.session_state.dm_sodium,
+                chloride=st.session_state.dm_chloride,
+                kcal_per_g=st.session_state.dm_kcal_per_g)
             st.divider()
             # display metrics in charts
-            display_charts(c=c,
-                           ash=st.session_state.dm_ash,
-                           fat=st.session_state.dm_fat,
-                           protein=st.session_state.dm_protein,
-                           carbs=st.session_state.dm_carbs,
-                           sugar=st.session_state.dm_sugar,
-                           fibre=st.session_state.dm_fibre,
-                           phosphorus=st.session_state.dm_phosphorus,
-                           sodium=st.session_state.dm_sodium,
-                           chloride=st.session_state.dm_chloride)
-            with col_3:
-                with st.container(border=True):
-                    st.header("Diet Suitability", divider="grey")
-                    # run tests & display results (provided calories have been entered; essential for calculations)
-                    if st.session_state.dm_kcal_per_g:
-                        st.session_state.panc = run_panc_tests(
-                            c=c,
-                            dm_fat=st.session_state.dm_fat,
-                            dm_protein=st.session_state.dm_protein,
-                            dm_carbs=st.session_state.dm_carbs,
-                            dm_sugar=st.session_state.dm_sugar)
-
-                        st.session_state.renal = run_renal_tests(
-                            c=c,
-                            dm_phosphorus=st.session_state.dm_phosphorus,
-                            dm_protein=st.session_state.dm_protein,
-                            dm_sodium=st.session_state.dm_sodium,
-                            dm_kcal_per_g=st.session_state.dm_kcal_per_g)
-                        # display results
-                        display_results(food_name=st.session_state.food_name if st.session_state.food_name else "This food",
-                                        panc=st.session_state.panc,
-                                        renal=st.session_state.renal)
-with st.container(border=True):
-    st.header("Calculation Parameters")
-    st.markdown(
-        "The parameters for the calculations are currently set according to the information published at [All About Dog Food](https://www.allaboutdogfood.co.uk). However, these defaults (below) may be adjusted if required.")
-    gen_param_tables(c)
-    st.write(c)
+            display_charts(
+                constituent_params=constituent_params,
+                ash=st.session_state.dm_ash,
+                fat=st.session_state.dm_fat,
+                protein=st.session_state.dm_protein,
+                carbs=st.session_state.dm_carbs,
+                sugar=st.session_state.dm_sugar,
+                fibre=st.session_state.dm_fibre,
+                phosphorus=st.session_state.dm_phosphorus,
+                sodium=st.session_state.dm_sodium,
+                chloride=st.session_state.dm_chloride)
+with col_3:
+    with st.container(border=True):
+        st.subheader(":grey[Diet Suitability]", divider="red")
+        # run tests & display results (provided calories have been entered; essential for calculations)
+        if st.session_state.dm_kcal_per_g:
+            st.session_state.panc = run_panc_tests(
+                constituent_params=constituent_params,
+                dm_fat=st.session_state.dm_fat,
+                dm_protein=st.session_state.dm_protein,
+                dm_carbs=st.session_state.dm_carbs,
+                dm_sugar=st.session_state.dm_sugar)
+            st.session_state.renal = run_renal_tests(
+                constituent_params=constituent_params,
+                dm_phosphorus=st.session_state.dm_phosphorus,
+                dm_protein=st.session_state.dm_protein,
+                dm_sodium=st.session_state.dm_sodium,
+                dm_kcal_per_g=st.session_state.dm_kcal_per_g)
+            # display results
+            display_results(food_name=st.session_state.food_name if st.session_state.food_name else "This food",
+                            panc=st.session_state.panc,
+                            renal=st.session_state.renal)
 
 
 with st.container(border=True):
-    st.header("References")
+    st.subheader(":grey[References]")
     st.markdown("[All About Dog Food](https://www.allaboutdogfood.co.uk)")
     st.markdown("[European Union's Knowledge for Policy documentation](https://knowledge4policy.ec.europa.eu/health-promotion-knowledge-gateway/dietary-saltsodium_en)")
