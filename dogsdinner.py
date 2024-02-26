@@ -789,7 +789,7 @@ def display_results(food_name, panc, renal):
 
 """ PAGE 1 """
 
-st.info(':blue[This app is currently in beta testing, therefore the results may be inaccurate. Please do not rely solely on the information provided here.]', icon="ℹ️")
+st.warning('This app is currently in beta testing, therefore the results may be inaccurate. Please do not rely solely on the information provided here.', icon="ℹ️")
 st.title(":rainbow[Dog's Dinner Constituent Calculator]")
 st.subheader(
     ":grey[Dry Matter Basis Calculation Tool for Renal & Pancreatitis Diets]", divider=False)
