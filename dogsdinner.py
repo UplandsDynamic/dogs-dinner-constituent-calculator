@@ -101,7 +101,7 @@ constituent_params = {
                     'high': None,
                 }
             },
-    },
+        },
     'carbs': {
             'desc': 'Carbohydrates',
             'measure_unit': '%',
@@ -123,7 +123,7 @@ constituent_params = {
                     'high': None,
                 }
             },
-    },
+        },
     'fibre': {
             'desc': 'Fibre',
             'measure_unit': '%',
@@ -145,7 +145,7 @@ constituent_params = {
                     'high': None,
                 }
             },
-    },
+        },
     'sugar': {
             'desc': 'Added Sugars',
             'measure_unit': 'g',
@@ -167,7 +167,7 @@ constituent_params = {
                     'high': None,
                 }
             },
-    },
+        },
     'sodium': {
             'desc': 'Sodium',
             'measure_unit': 'g/kcal',
@@ -189,7 +189,7 @@ constituent_params = {
                     'high': 0.0012,
                 }
             },
-    },
+        },
     'chloride': {
             'desc': 'Chloride',
             'measure_unit': '%',
@@ -211,7 +211,7 @@ constituent_params = {
                     'high': None,
                 }
             },
-    },
+        },
     'ash': {
             'desc': 'Ash',
             'measure_unit': '%',
@@ -233,7 +233,7 @@ constituent_params = {
                     'high': None,
                 }
             },
-    },
+        },
     'phosphorus': {
             'desc': 'Phosphorus',
             'measure_unit': '%',
@@ -255,7 +255,7 @@ constituent_params = {
                     'high': 0.8,
                 }
             },
-    },
+        },
 }
 
 """ FUNCTIONS """
@@ -337,10 +337,9 @@ def calc_protein(protein, moisture):
 # calculate dry matter carbohydrate (%)
 
 
-def calc_carbs(carbs, moisture):
-    dm_non_carbs = st.session_state.dm_fat + st.session_state.dm_protein + \
-        st.session_state.dm_fibre + st.session_state.dm_ash
-    return ((carbs / (100-moisture)) * 100) if carbs else 100 - dm_non_carbs
+def calc_carbs(carbs, dm_fat, dm_protein, dm_fibre, dm_ash, moisture):
+    dm_non_carbs = dm_fat + dm_protein + dm_fibre + dm_ash
+    return ((carbs / (100-moisture)) * 100) if carbs else (100 - dm_non_carbs) if dm_non_carbs <= 100 else 0
 
 # calculate dry matter fibre (%)
 
@@ -398,6 +397,7 @@ def calc_kcal_measure_weight(kcal_measure_weight, moisture):
 def calc_kcal_per_g(kcal, kcal_measure_weight, moisture):
     return kcal / (kcal_measure_weight * ((100-moisture) / 100))
 
+
 # function to create pie chart
 
 
@@ -439,7 +439,7 @@ def create_bar_chart(data):
 
 def display_charts(constituent_params, fat, fibre, protein, carbs, ash, phosphorus, chloride, sodium, sugar):
     st.subheader(":grey[Macronutrient Proportion Breakdown]")
-    if fat and fibre and protein:
+    if fat and fibre and protein and ash and carbs:
         create_pie({constituent_params['fat']['desc']: fat,
                     constituent_params['protein']['desc']: protein,
                     constituent_params['carbs']['desc']: carbs,
@@ -471,11 +471,12 @@ def display_charts(constituent_params, fat, fibre, protein, carbs, ash, phosphor
 # function to ensure metrics required for calculations have been submitted
 
 
-def enforce_required(kcal_measure_weight, kcal, salt, salt_measure_weight, sugar, sugar_measure_weight):
+def enforce_required(kcal_measure_weight, kcal, salt, salt_measure_weight,
+                     sugar, sugar_measure_weight, protein, fibre, fat, ash, moisture):
     test_passed = True
     if not kcal_measure_weight or not kcal:
         st.warning(
-            f":blue[Both calories and 'per *n* grams' needs to be provided.]")
+            f":blue[Both the calories and 'per *n* grams' fields need to be provided.]")
         test_passed = False
     if salt and not salt_measure_weight:
         st.warning(
@@ -484,6 +485,26 @@ def enforce_required(kcal_measure_weight, kcal, salt, salt_measure_weight, sugar
     if sugar and not sugar_measure_weight:
         st.warning(
             ':blue[If sugar is given, the *per grams* field needs to be provided.]')
+        test_passed = False
+    if not protein:
+        st.warning(
+            f':blue[A value for protein needs to be provided.]')
+        test_passed = False
+    if not fibre:
+        st.warning(
+            f':blue[A value for fibre needs to be provided.]')
+        test_passed = False
+    if not fat:
+        st.warning(
+            f':blue[A value for fat needs to be provided.]')
+        test_passed = False
+    if not ash:
+        st.warning(
+            f':blue[A value for ash needs to be provided.]')
+        test_passed = False
+    if not moisture:
+        st.warning(
+            f':blue[A value for moisture needs to be provided.]')
         test_passed = False
     return test_passed
 
@@ -795,101 +816,119 @@ with col_1:
         with st.container(border=True):
             cal_col_1, cal_col_2 = st.columns(2)
             with cal_col_1:
-                kcal = st.number_input(
+                st.session_state.crude_kcal = st.number_input(
                     label="Calories (kcal)", key='kcal', min_value=0.00, max_value=100000.0
                 )
             with cal_col_2:
-                kcal_measure_weight = st.number_input(
+                st.session_state.crude_kcal_measure_weight = st.number_input(
                     label="per Weight of Food (g)", key='kcal_measure_weight', min_value=0.00, max_value=100000.0
                 )
 
-        moisture = st.number_input(
+        st.session_state.crude_moisture = st.number_input(
             label="Moisture Content (%)", min_value=0.00, max_value=100.0,
             help="If moisture content is not listed for dry foods, it may be estimated to be around 10%."
         )
 
-        fat = st.number_input(
+        st.session_state.crude_fat = st.number_input(
             label=f"Crude {constituent_params['fat']['desc']} ({constituent_params['fat']['measure_unit']})", min_value=0.00, max_value=100.0
         )
 
-        protein = st.number_input(
+        st.session_state.crude_protein = st.number_input(
             label=f"Crude {constituent_params['protein']['desc']} ({constituent_params['protein']['measure_unit']})", min_value=0.00, max_value=100.0
         )
 
-        carbs = st.number_input(
+        st.session_state.crude_carbs = st.number_input(
             label=f"Crude {constituent_params['carbs']['desc']} ({constituent_params['carbs']['measure_unit']})", min_value=0.00, max_value=100.0
         )
 
-        fibre = st.number_input(
+        st.session_state.crude_fibre = st.number_input(
             label=f"Crude {constituent_params['fibre']['desc']} ({constituent_params['fibre']['measure_unit']})", min_value=0.00, max_value=100.0
         )
 
-        ash = st.number_input(
+        st.session_state.crude_ash = st.number_input(
             label=f"{constituent_params['ash']['desc']} ({constituent_params['ash']['measure_unit']})", min_value=0.00, max_value=100.0
         )
 
-        phosphorus = st.number_input(
+        st.session_state.crude_phosphorus = st.number_input(
             label=f"{constituent_params['phosphorus']['desc']} ({constituent_params['phosphorus']['measure_unit']})", min_value=0.00, max_value=100.0
         )
 
-        sodium = st.number_input(
+        st.session_state.crude_sodium = st.number_input(
             label=f"{constituent_params['sodium']['desc']} ({constituent_params['sodium']['measure_unit']})", min_value=0.00, max_value=100.0
         )
 
-        chloride = st.number_input(
+        st.session_state.crude_chloride = st.number_input(
             label=f"{constituent_params['chloride']['desc']} ({constituent_params['chloride']['measure_unit']})", min_value=0.00, max_value=100.0
         )
 
         with st.container(border=True):
             salt_col_1, salt_col_2 = st.columns(2)
             with salt_col_1:
-                salt = st.number_input(
+                st.session_state.crude_salt = st.number_input(
                     label="Added Salt (g)", key='salt', min_value=0.00, max_value=100000.0,
                     help="Added salt is assumed to be composed of 40% Sodium and 60% Chloride, as referenced in the [European Union's Knowledge for Policy documentation](https://knowledge4policy.ec.europa.eu/health-promotion-knowledge-gateway/dietary-saltsodium_en)"
                 )
             with salt_col_2:
-                salt_measure_weight = st.number_input(
+                st.session_state.crude_salt_measure_weight = st.number_input(
                     label="per weight of food (g)", key="salt_measure_weight", min_value=0.00, max_value=100000.0
                 )
 
         with st.container(border=True):
             sugar_col_1, sugar_col_2 = st.columns(2)
             with sugar_col_1:
-                sugar = st.number_input(
+                st.session_state.crude_sugar = st.number_input(
                     label=f"{constituent_params['sugar']['desc']} ({constituent_params['sugar']['measure_unit']})", key='sugar', min_value=0.00, max_value=100000.0
                 )
             with sugar_col_2:
-                sugar_measure_weight = st.number_input(
+                st.session_state.crude_sugar_measure_weight = st.number_input(
                     label="per weight of food (g)", key="sugar_measure_weight", min_value=0.00, max_value=100000.0
                 )
 with col_2:
     with st.container(border=True):
         st.subheader(":grey[Dry Matter Basis (Results)]", divider="red")
         # run the calculations
-        if enforce_required(kcal_measure_weight, kcal, salt, salt_measure_weight, sugar, sugar_measure_weight):
+        required_satisfied = enforce_required(
+            kcal_measure_weight=st.session_state.crude_kcal_measure_weight,
+            kcal=st.session_state.crude_kcal,
+            salt=st.session_state.crude_salt,
+            salt_measure_weight=st.session_state.crude_salt_measure_weight,
+            sugar=st.session_state.crude_sugar,
+            sugar_measure_weight=st.session_state.crude_sugar_measure_weight,
+            protein=st.session_state.crude_protein,
+            fat=st.session_state.crude_fat,
+            fibre=st.session_state.crude_fibre,
+            ash=st.session_state.crude_ash,
+            moisture=st.session_state.crude_moisture,
+        )
+        if required_satisfied:
             st.session_state.dm_fat = round(
-                calc_fat(fat, moisture), 3)
+                calc_fat(st.session_state.crude_fat, st.session_state.crude_moisture), 3)
             st.session_state.dm_protein = round(
-                calc_protein(protein, moisture), 3)
+                calc_protein(st.session_state.crude_protein, st.session_state.crude_moisture), 3)
             st.session_state.dm_fibre = round(
-                calc_fibre(fibre, moisture), 3)
+                calc_fibre(st.session_state.crude_fibre, st.session_state.crude_moisture), 3)
             st.session_state.dm_ash = round(
-                calc_ash(ash, moisture), 3)
+                calc_ash(st.session_state.crude_ash, st.session_state.crude_moisture), 3)
             st.session_state.dm_carbs = round(
                 # carbs has to be below fat, protein, fibre & ash
-                calc_carbs(carbs, moisture), 3)
+                calc_carbs(st.session_state.crude_carbs,
+                           st.session_state.dm_fat,
+                           st.session_state.dm_protein,
+                           st.session_state.dm_fibre,
+                           st.session_state.dm_ash,
+                           st.session_state.crude_moisture), 3)
             st.session_state.dm_phosphorus = round(
-                calc_phosphorus(phosphorus, moisture), 3)
+                calc_phosphorus(st.session_state.crude_phosphorus, st.session_state.crude_moisture), 3)
             st.session_state.dm_sodium = round(
-                calc_sodium(sodium, salt, salt_measure_weight, moisture), 3)
+                calc_sodium(st.session_state.crude_sodium, st.session_state.crude_salt, st.session_state.crude_salt_measure_weight, st.session_state.crude_moisture), 3)
             st.session_state.dm_chloride = round(
-                calc_chloride(chloride, salt, salt_measure_weight, moisture), 3)
+                calc_chloride(st.session_state.crude_chloride, st.session_state.crude_salt, st.session_state.crude_salt_measure_weight, st.session_state.crude_moisture), 3)
             st.session_state.dm_sugar = round(
-                calc_sugar(sugar, sugar_measure_weight, moisture) if sugar and sugar_measure_weight else 0, 3)
+                calc_sugar(st.session_state.crude_sugar, st.session_state.crude_sugar_measure_weight, st.session_state.crude_moisture) if st.session_state.crude_sugar and st.session_state.crude_sugar_measure_weight else 0, 3)
             st.session_state.dm_kcal_per_g = round(
-                calc_kcal_per_g(kcal, kcal_measure_weight, moisture), 3)
+                calc_kcal_per_g(st.session_state.crude_kcal, st.session_state.crude_kcal_measure_weight, st.session_state.crude_moisture), 3)
             st.session_state.dm_kcal_measure_weight = round(
-                calc_kcal_measure_weight(kcal_measure_weight, moisture), 3)
+                calc_kcal_measure_weight(st.session_state.crude_kcal_measure_weight, st.session_state.crude_moisture), 3)
             # display output
             display_calculations(
                 constituent_params=constituent_params,
@@ -919,25 +958,25 @@ with col_2:
 with col_3:
     with st.container(border=True):
         st.subheader(":grey[Diet Suitability]", divider="red")
-        # run tests & display results (provided calories have been entered; essential for calculations)
-        if st.session_state.dm_kcal_per_g:
-            st.session_state.panc = run_panc_tests(
-                constituent_params=constituent_params,
-                dm_fat=st.session_state.dm_fat,
-                dm_protein=st.session_state.dm_protein,
-                dm_carbs=st.session_state.dm_carbs,
-                dm_sugar=st.session_state.dm_sugar)
-            st.session_state.renal = run_renal_tests(
-                constituent_params=constituent_params,
-                dm_phosphorus=st.session_state.dm_phosphorus,
-                dm_protein=st.session_state.dm_protein,
-                dm_sodium=st.session_state.dm_sodium,
-                dm_kcal_per_g=st.session_state.dm_kcal_per_g)
-            # display results
-            display_results(food_name=st.session_state.food_name if st.session_state.food_name else "This food",
-                            panc=st.session_state.panc,
-                            renal=st.session_state.renal)
-
+        if required_satisfied:
+            # run tests & display results (provided calories have been entered; essential for calculations)
+            if st.session_state.dm_kcal_per_g:
+                st.session_state.panc = run_panc_tests(
+                    constituent_params=constituent_params,
+                    dm_fat=st.session_state.dm_fat,
+                    dm_protein=st.session_state.dm_protein,
+                    dm_carbs=st.session_state.dm_carbs,
+                    dm_sugar=st.session_state.dm_sugar)
+                st.session_state.renal = run_renal_tests(
+                    constituent_params=constituent_params,
+                    dm_phosphorus=st.session_state.dm_phosphorus,
+                    dm_protein=st.session_state.dm_protein,
+                    dm_sodium=st.session_state.dm_sodium,
+                    dm_kcal_per_g=st.session_state.dm_kcal_per_g)
+                # display results
+                display_results(food_name=st.session_state.food_name if st.session_state.food_name else "This food",
+                                panc=st.session_state.panc,
+                                renal=st.session_state.renal)
 
 with st.container(border=True):
     st.subheader(":grey[References]")
