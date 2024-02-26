@@ -5,7 +5,7 @@
 - Description: 'Dry Matter Basis' calculation, 
    comparison & evaluation tool, for renal & pancreatitis 
    dog food diet suitability.
-- Version: 0.1-beta
+- Version: 0.1.1-beta
 - License: GNU General Public License Version 3.0 (GPLv3.0),
    available at https://www.gnu.org/licenses/gpl-3.0.txt
 """
@@ -759,7 +759,7 @@ def display_results(food_name, panc, renal):
             st.success(
                 f''':white[{food_name} is suitable for a pancreatitis diet]''', icon='👍')
         else:
-            st.error(f''':white[{food_name} is not suitable for dogs with pancreatitis.]''',
+            st.error(f''':white[{food_name} is unsuitable for dogs with pancreatitis.]''',
                      icon='👎')
             for test in panc:
                 if test['pass'] == False:
@@ -778,7 +778,7 @@ def display_results(food_name, panc, renal):
                        changed for the following constituents: {', '.join([
                 d['nutrient'] for d in renal if d.get('default_param_changed')])}""")
         else:
-            st.error(f''':white[{food_name} is not suitable for dogs with kidney disease.]''',
+            st.error(f''':white[{food_name} is unsuitable for dogs with kidney disease.]''',
                      icon='👎')
             for test in renal:
                 if test['pass'] == False:
