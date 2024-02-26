@@ -744,8 +744,8 @@ def display_results(food_name, panc, renal):
                 if test['pass'] == False:
                     delta_pc = round(
                         test['delta_pc'], 2) if test['delta_pc'] <= 100 else 'over 100'
-                    st.markdown(f"{test['nutrient']} is {delta_pc}% too {
-                                test['reason']}", help='Percentage indicates the difference between the constituent amount and the recommendation. For example, "100% too high" would mean the food contained twice as much that constituent as would be appropriate for that diet.')
+                    st.markdown(f"""{test['nutrient']} is {delta_pc}% too {
+                                test['reason']}""", help="""Percentage indicates the difference between the constituent amount and the recommendation. For example, "100% too high" would mean the food contained twice as much that constituent as would be appropriate for that diet.""")
     # renal diet
     with st.container(border=True):
         st.subheader(':violet[Renal Diet]')
@@ -763,8 +763,7 @@ def display_results(food_name, panc, renal):
                 if test['pass'] == False:
                     delta_pc = round(
                         test['delta_pc'], 2) if test['delta_pc'] <= 100 else 'over 100'
-                    st.markdown(f"{test['nutrient']} is {delta_pc}% too {
-                                test['reason']}", help='Percentage indicates the *proportional difference* between the constituent amount and the recommendation. For example, "100% too high" would mean the food contains *twice* as much of that constituent as would be appropriate for the diet.\n\nNote that the figure does not refer to the *crude difference* in actual percentages between the food and the recommendation (e.g., if the recommended value is 12%, but the actual value is 15%, the *crude difference* would be 12-3 = 3%, but the *proportional difference* (as used in this metric) would be 15/12 = 1.25, which is to say 15% is 25% greater than the recommended value of 12%).')
+                    st.markdown(f"""{test['nutrient']} is {delta_pc}% too {test['reason']}""", help="""Percentage indicates the *proportional difference* between the constituent amount and the recommendation. For example, "100% too high" would mean the food contains *twice* as much of that constituent as would be appropriate for the diet.\n\nNote that the figure does not refer to the *crude difference* in actual percentages between the food and the recommendation (e.g., if the recommended value is 12%, but the actual value is 15%, the *crude difference* would be 12-3 = 3%, but the *proportional difference* (as used in this metric) would be 15/12 = 1.25, which is to say 15% is 25% greater than the recommended value of 12%).""")
 
 
 """ PAGE 1 """
