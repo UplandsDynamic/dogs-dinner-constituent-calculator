@@ -983,3 +983,5 @@ with st.container(border=True):
     st.subheader(":grey[References]")
     st.markdown("[All About Dog Food](https://www.allaboutdogfood.co.uk)")
     st.markdown("[European Union's Knowledge for Policy documentation](https://knowledge4policy.ec.europa.eu/health-promotion-knowledge-gateway/dietary-saltsodium_en)")
+
+st.caption('App developed by [Dan Bright (UplandsDynamic)](mailto:dan@uplandsdynamic.com). Code available on [GitHub](https://github.com/uplandsdynamic/dogs-dinner-constituent-calculator). Licensed GPLv3.')

@@ -15,3 +15,7 @@ Default values for the calculations used to establish the suitability of the dog
 A live instance of this application is hosted by Streamlit and is available [here](https://dogs-dinner-constituent-calculator.streamlit.app/).
 
 Code releases are also available right here on GitHub.
+
+## License
+
+GPLv3.
