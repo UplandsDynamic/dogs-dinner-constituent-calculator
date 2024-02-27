@@ -849,7 +849,8 @@ with col_1:
         )
 
         st.session_state.crude_ash = st.number_input(
-            label=f"{constituent_params['ash']['desc']} ({constituent_params['ash']['measure_unit']})", min_value=0.00, max_value=100.0
+            label=f"{constituent_params['ash']['desc']} ({constituent_params['ash']['measure_unit']})", min_value=0.00, max_value=100.0,
+            help="""Ash may also be referred to as 'inorganic matter' or 'incinerated matter'. It contains mineral nutrients that are beneficial for the dog's health. For more information, see [this page on the Dog Food Advisor website](https://www.dogfoodadvisor.com/choosing-dog-food/dog-food-ash/)."""
         )
 
         st.session_state.crude_phosphorus = st.number_input(
@@ -983,6 +984,7 @@ with col_3:
 
 with st.container(border=True):
     st.subheader(":grey[References]")
+    st.markdown("[Dog Food Advisor](https://www.dogfoodadvisor.com/choosing-dog-food/dog-food-ash/) (Web Resource)")
     st.markdown(
         "[All About Dog Food](https://www.allaboutdogfood.co.uk) (Web Resource)")
     st.markdown("[European Union's Knowledge for Policy Documentation](https://knowledge4policy.ec.europa.eu/health-promotion-knowledge-gateway/dietary-saltsodium_en) (Official Documentation)")
