@@ -5,7 +5,7 @@
 - Description: 'Dry Matter Basis' calculation, 
    comparison & evaluation tool, for renal & pancreatitis 
    dog food diet suitability.
-- Version: 0.1.5-beta
+- Version: 0.1.6-beta
 - License: GNU General Public License Version 3.0 (GPLv3.0),
    available at https://www.gnu.org/licenses/gpl-3.0.txt
 """
@@ -439,22 +439,21 @@ def create_bar_chart(data):
 
 def display_charts(constituent_params, fat, fibre, protein, carbs, ash, phosphorus, chloride, sodium, sugar):
     st.subheader(":grey[Macronutrient Proportion Breakdown]")
-    if fat and fibre and protein and ash and carbs:
-        create_pie({constituent_params['fat']['desc']: fat,
-                    constituent_params['protein']['desc']: protein,
-                    constituent_params['carbs']['desc']: carbs,
-                    constituent_params['fibre']['desc']: fibre,
-                    constituent_params['ash']['desc']: ash})
+    pie_params = {
+        constituent_params['fat']['desc']: fat,
+        constituent_params['protein']['desc']: protein,
+        constituent_params['carbs']['desc']: carbs,
+        constituent_params['fibre']['desc']: fibre,
+        constituent_params['ash']['desc']: ash,
+    }
+    if fat and fibre and protein and ash:
+        create_pie({k: v for k, v in pie_params.items() if v})
     else:
         st.markdown("Insufficient data to display")
     st.divider()
     st.subheader(":grey[Macronutrient Percentages]")
     if fat or fibre or protein:
-        create_bar_chart({constituent_params['fat']['desc']: fat,
-                          constituent_params['protein']['desc']: protein,
-                          constituent_params['carbs']['desc']: carbs,
-                          constituent_params['fibre']['desc']: fibre,
-                          constituent_params['ash']['desc']: ash})
+        create_bar_chart({k: v for k, v in pie_params.items() if v})
     else:
         st.markdown("Insufficient data to display")
 
@@ -514,6 +513,10 @@ def enforce_required(kcal_measure_weight, kcal, salt, salt_measure_weight,
     if not moisture:
         st.warning(
             f':blue[A value for moisture needs to be provided.]')
+        test_passed = False
+    if protein + fibre + fat + ash + sodium + phosphorus + moisture > 100:
+        st.error(
+            f':blue[The crude values you input for protein, fibre, fat, ash, sodium, phosphorus and moisture total in excess of 100%. Please amend before continuing.]')
         test_passed = False
     return test_passed
 
@@ -856,7 +859,6 @@ with col_1:
             label=f"Crude {constituent_params['protein']['desc']} ({constituent_params['protein']['measure_unit']})", min_value=0.00, max_value=100.0
         )
 
-        
         st.session_state.crude_carbs = 0
         """
         # Allow app to calculate carbs based on remainder after other inputs. 
@@ -912,7 +914,7 @@ with col_1:
 with col_2:
     with st.container(border=True):
         st.subheader(":grey[Dry Matter Basis (Results)]", divider="red")
-        # run the calculations
+        # check input
         required_satisfied = enforce_required(
             kcal_measure_weight=st.session_state.crude_kcal_measure_weight,
             kcal=st.session_state.crude_kcal,
@@ -928,6 +930,7 @@ with col_2:
             phosphorus=st.session_state.crude_phosphorus,
             moisture=st.session_state.crude_moisture,
         )
+        # run the calculations
         if required_satisfied:
             st.session_state.dm_fat = round(
                 calc_fat(st.session_state.crude_fat, st.session_state.crude_moisture), 3)
