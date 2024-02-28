@@ -5,7 +5,7 @@
 - Description: 'Dry Matter Basis' calculation, 
    comparison & evaluation tool, for renal & pancreatitis 
    dog food diet suitability.
-- Version: 0.1.6-beta
+- Version: 0.1.7-beta
 - License: GNU General Public License Version 3.0 (GPLv3.0),
    available at https://www.gnu.org/licenses/gpl-3.0.txt
 """
@@ -14,49 +14,13 @@ import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
 import altair as alt
+from copy import deepcopy
 
 st.set_page_config(layout="wide")
 
-""" SET VARIABLES IN SESSION STATE """
-
-if "panc" not in st.session_state:
-    st.session_state.panc = False
-if "renal" not in st.session_state:
-    st.session_state.renal = False
-if "food_name" not in st.session_state:
-    st.session_state.food_name = "Unnamed Food"
-if "dm_fat" not in st.session_state:
-    st.session_state.dm_fat = 0
-if "dm_protein" not in st.session_state:
-    st.session_state.dm_protein = 0
-if "dm_carbs" not in st.session_state:
-    st.session_state.dm_carbs = 0
-if "dm_phosphorus" not in st.session_state:
-    st.session_state.dm_phosphorus = 0
-if "dm_sodium" not in st.session_state:
-    st.session_state.dm_sodium = 0
-if "dm_chloride" not in st.session_state:
-    st.session_state.dm_chloride = 0
-if "dm_fibre" not in st.session_state:
-    st.session_state.dm_fibre = 0
-if "dm_ash" not in st.session_state:
-    st.session_state.dm_ash = 0
-if "dm_salt" not in st.session_state:
-    st.session_state.dm_salt = 0
-if "dm_salt_measure_weight" not in st.session_state:
-    st.session_state.dm_salt_measure_weight = 0
-if "dm_sugar" not in st.session_state:
-    st.session_state.dm_sugar = 0
-if "dm_sugar_measure_weight" not in st.session_state:
-    st.session_state.dm_sugar_measure_weight = 0
-if "dm_kcal_per_g" not in st.session_state:
-    st.session_state.dm_kcal_per_g = 0
-if "dm_kcal_measure_weight" not in st.session_state:
-    st.session_state.dm_kcal_measure_weight = 0
-
 """ NON SESSION VARIABLES """
 
-st.session_state.constituent_params = {
+default_constituent_params = {
     'protein':
         {
             'desc': 'Protein',
@@ -258,6 +222,48 @@ st.session_state.constituent_params = {
     },
 }
 
+constituent_params = deepcopy(default_constituent_params)
+
+""" SET VARIABLES IN SESSION STATE """
+
+if "panc" not in st.session_state:
+    st.session_state.panc = False
+if "renal" not in st.session_state:
+    st.session_state.renal = False
+if "food_name" not in st.session_state:
+    st.session_state.food_name = "Unnamed Food"
+if "dm_fat" not in st.session_state:
+    st.session_state.dm_fat = 0
+if "dm_protein" not in st.session_state:
+    st.session_state.dm_protein = 0
+if "dm_carbs" not in st.session_state:
+    st.session_state.dm_carbs = 0
+if "dm_phosphorus" not in st.session_state:
+    st.session_state.dm_phosphorus = 0
+if "dm_sodium" not in st.session_state:
+    st.session_state.dm_sodium = 0
+if "dm_chloride" not in st.session_state:
+    st.session_state.dm_chloride = 0
+if "dm_fibre" not in st.session_state:
+    st.session_state.dm_fibre = 0
+if "dm_ash" not in st.session_state:
+    st.session_state.dm_ash = 0
+if "dm_salt" not in st.session_state:
+    st.session_state.dm_salt = 0
+if "dm_salt_measure_weight" not in st.session_state:
+    st.session_state.dm_salt_measure_weight = 0
+if "dm_sugar" not in st.session_state:
+    st.session_state.dm_sugar = 0
+if "dm_sugar_measure_weight" not in st.session_state:
+    st.session_state.dm_sugar_measure_weight = 0
+if "dm_kcal_per_g" not in st.session_state:
+    st.session_state.dm_kcal_per_g = 0
+if "dm_kcal_measure_weight" not in st.session_state:
+    st.session_state.dm_kcal_measure_weight = 0
+if "params_table_widget_key" not in st.session_state:
+    st.session_state.params_table_widget_key = 0
+
+
 """ FUNCTIONS """
 
 # populate user input fields with example
@@ -286,7 +292,7 @@ def populate_example(example=False):
 # create editable parameter table
 
 
-def gen_param_tables(constituent_params):
+def gen_param_tables(constituent_params, key=st.session_state.params_table_widget_key):
     # callback that calls func to update the constituent params
 
     edited_constituent_params = {'panc': None, 'renal': None}
@@ -325,26 +331,37 @@ def gen_param_tables(constituent_params):
                                 )
                             },
                             disabled=['', 'measure_unit'],
-                            key=f'{condition}_constituent_param_editor',
+                            key=f"""state_{key}_{
+                                condition}_constituent_param_editor""",
                             use_container_width=True,
                         )
                     )
+
+        st.button(':orange[Restore Defaults]',
+                  on_click=reset_constituent_params)
         update_constituent_params(
             constituent_params, edited_constituent_params)
 
+# function to reset the constituent params
+
+
+def reset_constituent_params():
+    st.session_state.params_table_widget_key = 1 if not st.session_state.params_table_widget_key else 0
 
 # function to update the constituent params upon user edit
 
+
 def update_constituent_params(constituent_params, edited_constituent_params):
-    for condition, data in edited_constituent_params.items():
-        for k, v in data.items():
-            if k == 'min_dry_matter':
-                {constituent_params[a][condition].update({'low': y, 'default_changed': True}) for x, y in v.items()
-                    for a, b in constituent_params.items() if b.get('desc') == x if constituent_params[a][condition]['low'] != y}
-            elif k == 'max_dry_matter':
-                {constituent_params[a][condition].update({'high': y, 'default_changed': True}) for x, y in v.items()
-                    for a, b in constituent_params.items() if b.get('desc') == x if constituent_params[a][condition]['high'] != y}
-    st.session_state.constituent_params = constituent_params
+    if constituent_params and edited_constituent_params:
+        for condition, data in edited_constituent_params.items():
+            for k, v in data.items():
+                if k == 'min_dry_matter':
+                    {constituent_params[a][condition].update({'low': y, 'default_changed': True}) for x, y in v.items()
+                        for a, b in constituent_params.items() if b.get('desc') == x if constituent_params[a][condition]['low'] != y}
+                elif k == 'max_dry_matter':
+                    {constituent_params[a][condition].update({'high': y, 'default_changed': True}) for x, y in v.items()
+                        for a, b in constituent_params.items() if b.get('desc') == x if constituent_params[a][condition]['high'] != y}
+
 
 # calculate dry matter fat (%)
 
@@ -850,7 +867,7 @@ with st.container(border=True):
     st.markdown(
         """The default parameters for the calculations are currently set largely with reference to the information published at [All About Dog Food](https://www.allaboutdogfood.co.uk).""")
 
-    gen_param_tables(st.session_state.constituent_params)
+    gen_param_tables(constituent_params)
 
 col_1, col_2, col_3 = st.columns(3, gap="medium")
 with col_1:
@@ -890,11 +907,11 @@ with col_1:
         )
 
         st.session_state.crude_fat = st.number_input(
-            label=f"Crude {st.session_state.constituent_params['fat']['desc']} ({st.session_state.constituent_params['fat']['measure_unit']})", min_value=0.00, max_value=100.0, value=st.session_state.default_inputs['fat'],
+            label=f"Crude {constituent_params['fat']['desc']} ({constituent_params['fat']['measure_unit']})", min_value=0.00, max_value=100.0, value=st.session_state.default_inputs['fat'],
         )
 
         st.session_state.crude_protein = st.number_input(
-            label=f"Crude {st.session_state.constituent_params['protein']['desc']} ({st.session_state.constituent_params['protein']['measure_unit']})", min_value=0.00, max_value=100.0, value=st.session_state.default_inputs['protein'],
+            label=f"Crude {constituent_params['protein']['desc']} ({constituent_params['protein']['measure_unit']})", min_value=0.00, max_value=100.0, value=st.session_state.default_inputs['protein'],
         )
 
         st.session_state.crude_carbs = 0.0
@@ -907,24 +924,24 @@ with col_1:
         )"""
 
         st.session_state.crude_fibre = st.number_input(
-            label=f"Crude {st.session_state.constituent_params['fibre']['desc']} ({st.session_state.constituent_params['fibre']['measure_unit']})", min_value=0.00, max_value=100.0, value=st.session_state.default_inputs['fibre'],
+            label=f"Crude {constituent_params['fibre']['desc']} ({constituent_params['fibre']['measure_unit']})", min_value=0.00, max_value=100.0, value=st.session_state.default_inputs['fibre'],
         )
 
         st.session_state.crude_ash = st.number_input(
-            label=f"{st.session_state.constituent_params['ash']['desc']} ({st.session_state.constituent_params['ash']['measure_unit']})", min_value=0.00, max_value=100.0, value=st.session_state.default_inputs['ash'],
+            label=f"{constituent_params['ash']['desc']} ({constituent_params['ash']['measure_unit']})", min_value=0.00, max_value=100.0, value=st.session_state.default_inputs['ash'],
             help="""Ash may also be referred to as 'inorganic matter' or 'incinerated matter'. It contains mineral nutrients that are beneficial for the dog's health. For more information, see [this page on the Dog Food Advisor website](https://www.dogfoodadvisor.com/choosing-dog-food/dog-food-ash/)."""
         )
 
         st.session_state.crude_phosphorus = st.number_input(
-            label=f"{st.session_state.constituent_params['phosphorus']['desc']} ({st.session_state.constituent_params['phosphorus']['measure_unit']})", min_value=0.00, max_value=100.0, value=st.session_state.default_inputs['phosphorus'],
+            label=f"{constituent_params['phosphorus']['desc']} ({constituent_params['phosphorus']['measure_unit']})", min_value=0.00, max_value=100.0, value=st.session_state.default_inputs['phosphorus'],
         )
 
         st.session_state.crude_sodium = st.number_input(
-            label=f"{st.session_state.constituent_params['sodium']['desc']} ({st.session_state.constituent_params['sodium']['measure_unit']})", min_value=0.00, max_value=100.0, value=st.session_state.default_inputs['sodium'],
+            label=f"{constituent_params['sodium']['desc']} ({constituent_params['sodium']['measure_unit']})", min_value=0.00, max_value=100.0, value=st.session_state.default_inputs['sodium'],
         )
 
         st.session_state.crude_chloride = st.number_input(
-            label=f"{st.session_state.constituent_params['chloride']['desc']} ({st.session_state.constituent_params['chloride']['measure_unit']})", min_value=0.00, max_value=100.0, value=st.session_state.default_inputs['chloride'],
+            label=f"{constituent_params['chloride']['desc']} ({constituent_params['chloride']['measure_unit']})", min_value=0.00, max_value=100.0, value=st.session_state.default_inputs['chloride'],
         )
 
         with st.container(border=True):
@@ -943,7 +960,7 @@ with col_1:
             sugar_col_1, sugar_col_2 = st.columns(2)
             with sugar_col_1:
                 st.session_state.crude_sugar = st.number_input(
-                    label=f"{st.session_state.constituent_params['sugar']['desc']} ({st.session_state.constituent_params['sugar']['measure_unit']})", key='sugar', min_value=0.00, max_value=100000.0, value=st.session_state.default_inputs['sugar']
+                    label=f"{constituent_params['sugar']['desc']} ({constituent_params['sugar']['measure_unit']})", key='sugar', min_value=0.00, max_value=100000.0, value=st.session_state.default_inputs['sugar']
                 )
             with sugar_col_2:
                 st.session_state.crude_sugar_measure_weight = st.number_input(
@@ -1000,7 +1017,7 @@ with col_2:
                 calc_kcal_measure_weight(st.session_state.crude_kcal_measure_weight, st.session_state.crude_moisture), 3)
             # display output
             display_calculations(
-                constituent_params=st.session_state.constituent_params,
+                constituent_params=constituent_params,
                 ash=st.session_state.dm_ash,
                 fat=st.session_state.dm_fat,
                 protein=st.session_state.dm_protein,
@@ -1014,7 +1031,7 @@ with col_2:
             st.divider()
             # display metrics in charts
             display_charts(
-                constituent_params=st.session_state.constituent_params,
+                constituent_params=constituent_params,
                 ash=st.session_state.dm_ash,
                 fat=st.session_state.dm_fat,
                 protein=st.session_state.dm_protein,
@@ -1031,13 +1048,13 @@ with col_3:
             # run tests & display results (provided calories have been entered; essential for calculations)
             if st.session_state.dm_kcal_per_g:
                 st.session_state.panc = run_panc_tests(
-                    constituent_params=st.session_state.constituent_params,
+                    constituent_params=constituent_params,
                     dm_fat=st.session_state.dm_fat,
                     dm_protein=st.session_state.dm_protein,
                     dm_carbs=st.session_state.dm_carbs,
                     dm_sugar=st.session_state.dm_sugar)
                 st.session_state.renal = run_renal_tests(
-                    constituent_params=st.session_state.constituent_params,
+                    constituent_params=constituent_params,
                     dm_phosphorus=st.session_state.dm_phosphorus,
                     dm_protein=st.session_state.dm_protein,
                     dm_sodium=st.session_state.dm_sodium,
