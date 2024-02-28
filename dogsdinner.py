@@ -5,7 +5,7 @@
 - Description: 'Dry Matter Basis' calculation, 
    comparison & evaluation tool, for renal & pancreatitis 
    dog food diet suitability.
-- Version: 0.1.3-beta
+- Version: 0.1.4-beta
 - License: GNU General Public License Version 3.0 (GPLv3.0),
    available at https://www.gnu.org/licenses/gpl-3.0.txt
 """
@@ -856,10 +856,10 @@ with col_1:
             label=f"Crude {constituent_params['protein']['desc']} ({constituent_params['protein']['measure_unit']})", min_value=0.00, max_value=100.0
         )
 
-        st.session_state.crude_carbs = st.number_input(
-            label=f"Crude {constituent_params['carbs']['desc']} ({constituent_params['carbs']['measure_unit']})", min_value=0.00, max_value=100.0,
-            help="If a value for carbohydrates is not available, this will be estimated for the calculations as the remainder of 'dry matter' food after accounting for protein, fat, fibre and ash."
-        )
+        # st.session_state.crude_carbs = st.number_input(
+        #     label=f"Crude {constituent_params['carbs']['desc']} ({constituent_params['carbs']['measure_unit']})", min_value=0.00, max_value=100.0,
+        #     help="If a value for carbohydrates is not available, this will be estimated for the calculations as the remainder of 'dry matter' food after accounting for protein, fat, fibre and ash."
+        # )
 
         st.session_state.crude_fibre = st.number_input(
             label=f"Crude {constituent_params['fibre']['desc']} ({constituent_params['fibre']['measure_unit']})", min_value=0.00, max_value=100.0
