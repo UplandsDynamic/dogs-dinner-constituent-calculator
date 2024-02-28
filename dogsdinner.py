@@ -813,6 +813,10 @@ def display_results(food_name, panc, renal):
         if all(d.get('pass', False) == True for d in panc):
             st.success(
                 f''':white[{food_name} is suitable for a pancreatitis diet]''', icon='👍')
+            if any(d.get('default_param_changed') for d in panc):
+                st.warning(f"""Warning: The default calculation parameters have been
+                        changed for the following constituents: {', '.join([
+                    d['nutrient'] for d in panc if d.get('default_param_changed')])}""")
         else:
             st.error(f''':white[{food_name} is unsuitable for dogs with pancreatitis.]''',
                      icon='👎')
@@ -828,10 +832,10 @@ def display_results(food_name, panc, renal):
         if all(d.get('pass', False) == True for d in renal):
             st.success(
                 f''':white[{food_name} is suitable for a renal diet]''', icon='👍')
-            changed = any(d.get('default_param_changed') for d in renal)
-            st.warning(f"""Warning: The default calculation parameters have been
-                       changed for the following constituents: {', '.join([
-                d['nutrient'] for d in renal if d.get('default_param_changed')])}""")
+            if any(d.get('default_param_changed') for d in renal):
+                st.warning(f"""Warning: The default calculation parameters have been
+                        changed for the following constituents: {', '.join([
+                    d['nutrient'] for d in renal if d.get('default_param_changed')])}""")
         else:
             st.error(f''':white[{food_name} is unsuitable for dogs with kidney disease.]''',
                      icon='👎')
