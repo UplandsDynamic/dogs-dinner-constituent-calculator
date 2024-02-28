@@ -5,7 +5,7 @@
 - Description: 'Dry Matter Basis' calculation, 
    comparison & evaluation tool, for renal & pancreatitis 
    dog food diet suitability.
-- Version: 0.1.2-beta
+- Version: 0.1.3-beta
 - License: GNU General Public License Version 3.0 (GPLv3.0),
    available at https://www.gnu.org/licenses/gpl-3.0.txt
 """
@@ -101,7 +101,7 @@ constituent_params = {
                     'high': None,
                 }
             },
-        },
+    },
     'carbs': {
             'desc': 'Carbohydrates',
             'measure_unit': '%',
@@ -123,7 +123,7 @@ constituent_params = {
                     'high': None,
                 }
             },
-        },
+    },
     'fibre': {
             'desc': 'Fibre',
             'measure_unit': '%',
@@ -145,7 +145,7 @@ constituent_params = {
                     'high': None,
                 }
             },
-        },
+    },
     'sugar': {
             'desc': 'Added Sugars',
             'measure_unit': 'g',
@@ -167,7 +167,7 @@ constituent_params = {
                     'high': None,
                 }
             },
-        },
+    },
     'sodium': {
             'desc': 'Sodium',
             'measure_unit': 'g/kcal',
@@ -189,7 +189,7 @@ constituent_params = {
                     'high': 0.0012,
                 }
             },
-        },
+    },
     'chloride': {
             'desc': 'Chloride',
             'measure_unit': '%',
@@ -211,7 +211,7 @@ constituent_params = {
                     'high': None,
                 }
             },
-        },
+    },
     'ash': {
             'desc': 'Ash',
             'measure_unit': '%',
@@ -233,7 +233,7 @@ constituent_params = {
                     'high': None,
                 }
             },
-        },
+    },
     'phosphorus': {
             'desc': 'Phosphorus',
             'measure_unit': '%',
@@ -255,7 +255,7 @@ constituent_params = {
                     'high': 0.8,
                 }
             },
-        },
+    },
 }
 
 """ FUNCTIONS """
@@ -265,7 +265,7 @@ constituent_params = {
 
 def gen_param_tables(constituent_params):
     edited_constituent_params = {'panc': None, 'renal': None}
-    with st.expander(':green[Click to view or edit the calculation parameters.]'):
+    with st.expander(':green[Click here to view or edit the calculation parameters.]'):
         st.write(
             'To adjust the calculation parameter(s), simple enter the new value(s) in the fields below.')
         tab_col_1, tab_col_2 = st.columns(2, gap="small")
@@ -807,11 +807,14 @@ with header_col_2:
     st.title(":rainbow[Dog's Dinner Constituent Calculator]")
     st.subheader(
         ":grey[Dry Matter Basis Calculation Tool for Renal & Pancreatitis Diets]", divider=False)
-with st.expander(':green[Click to expand details about what this app does, and why it does it.]'):
-    st.markdown(
-        """The purpose of this calculator is to provide 'Dry Matter Basis' comparison between commercially available dog foods, where the 'analytical constituents' are provided by the manufacturer 'As Fed'.\n\nConverting the 'As Fed' constituent measures to a 'Dry Matter Basis' basis allows for a more accurate comparison between wet and dry foods.\n\nFor more details about what 'Dry Matter Basis' is, why it matters, and how it is calculated, please refer to the [All About Dog Food<sup>1</sup>](https://www.allaboutdogfood.co.uk/dog-food-terms/0013/dry-matter-nutrients) website.\n\nSpecifically, this calculator assesses the suitability of the food constituents for dogs with kidney disease (requiring a renal diet), and for dogs with disease of the pancreas (requiring a pancreatitis diet).\n\nDefault values for the calculations used to establish the suitability of the dog food constituents are based mainly on the information provided by the [All About Dog Food<sup>2</sup>](https://allaboutdogfood.co.uk) and [PetMD<sup>3</sup>](https://www.petmd.com/dog/nutrition/what-feed-dog-kidney-disease) websites.""", unsafe_allow_html=True)
-    st.caption("""<sup>(1,2,3)</sup> This app has no affiliation with the 'All About Dog Food' or 'PetMD' websites.""",
-               unsafe_allow_html=True)
+with st.container(border=True):
+    st.subheader(":grey[About]")
+    st.markdown("The purpose of this calculator is to provide 'Dry Matter Basis' comparison between commercially available dog foods, where the 'analytical constituents' are provided by the manufacturer 'As Fed'.\n\nBased on this information, the app also indicates the food's suitability as a diet for dogs with kidney (renal) disease, and/or pancreatitis.")
+    with st.expander(':green[Click here to expand details about what this app does, and why it does it.]'):
+        st.markdown(
+            """Converting the 'As Fed' constituent measures to a 'Dry Matter Basis' basis allows for a more accurate comparison between wet and dry foods.\n\nFor more details about what 'Dry Matter Basis' is, why it matters, and how it is calculated, please refer to the [All About Dog Food<sup>1</sup>](https://www.allaboutdogfood.co.uk/dog-food-terms/0013/dry-matter-nutrients) website.\n\nSpecifically, this calculator assesses the suitability of the food constituents for dogs with kidney disease (requiring a renal diet), and for dogs with disease of the pancreas (requiring a pancreatitis diet).\n\nDefault values for the calculations used to establish the suitability of the dog food constituents are based mainly on the information provided by the [All About Dog Food<sup>2</sup>](https://allaboutdogfood.co.uk) and [PetMD<sup>3</sup>](https://www.petmd.com/dog/nutrition/what-feed-dog-kidney-disease) websites.""", unsafe_allow_html=True)
+        st.caption("""<sup>(1,2,3)</sup> This app has no affiliation with the 'All About Dog Food' or 'PetMD' websites.""",
+                   unsafe_allow_html=True)
 
 with st.container(border=True):
     st.subheader(":grey[Calculation Parameters]")
