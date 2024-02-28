@@ -809,7 +809,7 @@ with header_col_2:
         ":grey[Dry Matter Basis Calculation Tool for Renal & Pancreatitis Diets]", divider=False)
 with st.expander(':green[Click to expand details about what this app does, and why it does it.]'):
     st.markdown(
-        """The purpose of this calculator is to provide 'Dry Matter Basis' comparison between commercially available dog foods, where the 'analytical constituents' are provided by the manufacturer 'As Fed'.\n\nConverting the 'As Fed' constituent measures to a 'Dry Matter Basis' basis allows for a more accurate comparison between wet and dry foods.\n\nFor more details about what 'Dry Matter Basis' is, why it matters, and how it is calculated, [click here to see this page on the 'All About Dog Food' website<sup>1</sup>](https://www.allaboutdogfood.co.uk/dog-food-terms/0013/dry-matter-nutrients).\n\nSpecifically, this calculator assesses the suitability of the food constituents for dogs with kidney disease (requiring a renal diet), and for dogs with disease of the pancreas (requiring a pancreatitis diet).\n\nDefault values for the calculations used to establish the suitability of the dog food constituents are based mainly on the information provided by the ['All About Dog Food'<sup>2</sup>](https://allaboutdogfood.co.uk) and ['PetMD'<sup>3</sup>](https://www.petmd.com/dog/nutrition/what-feed-dog-kidney-disease) websites.""", unsafe_allow_html=True)
+        """The purpose of this calculator is to provide 'Dry Matter Basis' comparison between commercially available dog foods, where the 'analytical constituents' are provided by the manufacturer 'As Fed'.\n\nConverting the 'As Fed' constituent measures to a 'Dry Matter Basis' basis allows for a more accurate comparison between wet and dry foods.\n\nFor more details about what 'Dry Matter Basis' is, why it matters, and how it is calculated, please refer to the [All About Dog Food<sup>1</sup>](https://www.allaboutdogfood.co.uk/dog-food-terms/0013/dry-matter-nutrients) website.\n\nSpecifically, this calculator assesses the suitability of the food constituents for dogs with kidney disease (requiring a renal diet), and for dogs with disease of the pancreas (requiring a pancreatitis diet).\n\nDefault values for the calculations used to establish the suitability of the dog food constituents are based mainly on the information provided by the [All About Dog Food<sup>2</sup>](https://allaboutdogfood.co.uk) and [PetMD<sup>3</sup>](https://www.petmd.com/dog/nutrition/what-feed-dog-kidney-disease) websites.""", unsafe_allow_html=True)
     st.caption("""<sup>(1,2,3)</sup> This app has no affiliation with the 'All About Dog Food' or 'PetMD' websites.""",
                unsafe_allow_html=True)
 
@@ -1001,9 +1001,9 @@ with col_3:
 with st.container(border=True):
     st.subheader(":grey[References]")
     st.markdown(
-        "[Dog Food Advisor](https://www.dogfoodadvisor.com/choosing-dog-food/dog-food-ash/) (Web Resource)")
-    st.markdown(
         "[All About Dog Food](https://www.allaboutdogfood.co.uk) (Web Resource)")
+    st.markdown(
+        "[Dog Food Advisor](https://www.dogfoodadvisor.com/choosing-dog-food/dog-food-ash/) (Web Resource)")
     st.markdown("[European Union's Knowledge for Policy Documentation](https://knowledge4policy.ec.europa.eu/health-promotion-knowledge-gateway/dietary-saltsodium_en) (Official Documentation)")
     st.markdown("[PedMD: What to feed a dog with kidney disease](https://www.petmd.com/dog/nutrition/what-feed-dog-kidney-disease) (Web Resource)")
 
