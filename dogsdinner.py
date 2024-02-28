@@ -5,7 +5,7 @@
 - Description: 'Dry Matter Basis' calculation, 
    comparison & evaluation tool, for renal & pancreatitis 
    dog food diet suitability.
-- Version: 0.1.1-beta
+- Version: 0.1.2-beta
 - License: GNU General Public License Version 3.0 (GPLv3.0),
    available at https://www.gnu.org/licenses/gpl-3.0.txt
 """
@@ -101,7 +101,7 @@ constituent_params = {
                     'high': None,
                 }
             },
-            },
+        },
     'carbs': {
             'desc': 'Carbohydrates',
             'measure_unit': '%',
@@ -123,7 +123,7 @@ constituent_params = {
                     'high': None,
                 }
             },
-            },
+        },
     'fibre': {
             'desc': 'Fibre',
             'measure_unit': '%',
@@ -145,7 +145,7 @@ constituent_params = {
                     'high': None,
                 }
             },
-            },
+        },
     'sugar': {
             'desc': 'Added Sugars',
             'measure_unit': 'g',
@@ -167,7 +167,7 @@ constituent_params = {
                     'high': None,
                 }
             },
-            },
+        },
     'sodium': {
             'desc': 'Sodium',
             'measure_unit': 'g/kcal',
@@ -189,7 +189,7 @@ constituent_params = {
                     'high': 0.0012,
                 }
             },
-            },
+        },
     'chloride': {
             'desc': 'Chloride',
             'measure_unit': '%',
@@ -211,7 +211,7 @@ constituent_params = {
                     'high': None,
                 }
             },
-            },
+        },
     'ash': {
             'desc': 'Ash',
             'measure_unit': '%',
@@ -233,7 +233,7 @@ constituent_params = {
                     'high': None,
                 }
             },
-            },
+        },
     'phosphorus': {
             'desc': 'Phosphorus',
             'measure_unit': '%',
@@ -255,7 +255,7 @@ constituent_params = {
                     'high': 0.8,
                 }
             },
-            },
+        },
 }
 
 """ FUNCTIONS """
@@ -472,7 +472,8 @@ def display_charts(constituent_params, fat, fibre, protein, carbs, ash, phosphor
 
 
 def enforce_required(kcal_measure_weight, kcal, salt, salt_measure_weight,
-                     sugar, sugar_measure_weight, protein, fibre, fat, ash, moisture):
+                     sugar, sugar_measure_weight, protein, fibre, fat, ash,
+                     sodium, phosphorus, moisture):
     test_passed = True
     if not kcal_measure_weight or not kcal:
         st.warning(
@@ -501,6 +502,14 @@ def enforce_required(kcal_measure_weight, kcal, salt, salt_measure_weight,
     if not ash:
         st.warning(
             f':blue[A value for ash needs to be provided.]')
+        test_passed = False
+    if not sodium:
+        st.warning(
+            f':blue[A value for sodium needs to be provided.]')
+        test_passed = False
+    if not phosphorus:
+        st.warning(
+            f':blue[A value for phosphorus needs to be provided.]')
         test_passed = False
     if not moisture:
         st.warning(
@@ -907,6 +916,8 @@ with col_2:
             fat=st.session_state.crude_fat,
             fibre=st.session_state.crude_fibre,
             ash=st.session_state.crude_ash,
+            sodium=st.session_state.crude_sodium,
+            phosphorus=st.session_state.crude_phosphorus,
             moisture=st.session_state.crude_moisture,
         )
         if required_satisfied:
