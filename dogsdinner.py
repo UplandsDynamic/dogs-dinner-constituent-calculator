@@ -5,7 +5,7 @@
 - Description: 'Dry Matter Basis' calculation, 
    comparison & evaluation tool, for renal & pancreatitis 
    dog food diet suitability.
-- Version: 0.1.7-beta
+- Version: 0.1.9-beta
 - License: GNU General Public License Version 3.0 (GPLv3.0),
    available at https://www.gnu.org/licenses/gpl-3.0.txt
 """
@@ -849,13 +849,14 @@ def display_results(food_name, panc, renal):
 
 """ PAGE 1 """
 header_col_1, header_col_2 = st.columns([10, 90], gap='medium')
-with header_col_1:
-    with st.container(border=True):
-        st.image('logo.jpg', use_column_width=True)
-with header_col_2:
-    st.title(":rainbow[Dog's Dinner Constituent Calculator]")
-    st.header(
-        ":grey[Dry Matter Basis Calculator for Renal & Pancreatitis Diets]", divider=False)
+with st.container():
+    with header_col_1:
+        with st.container(border=True):
+            st.image('logo.jpg', use_column_width=True)
+    with header_col_2:
+        st.title(":rainbow[Dog's Dinner Constituent Calculator]")
+        st.header(
+            ":grey[Dry Matter Basis Calculator for Renal & Pancreatitis Diets]", divider=False)
 with st.container(border=True):
     st.subheader(":grey[About]")
     st.warning('This app is currently in beta testing, therefore the results may be inaccurate. Please do not rely solely on the information provided here.', icon="ℹ️")
