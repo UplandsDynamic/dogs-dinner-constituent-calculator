@@ -16,7 +16,8 @@ import matplotlib.pyplot as plt
 import altair as alt
 from copy import deepcopy
 
-st.set_page_config(layout="wide")
+st.set_page_config(
+    layout="wide", page_title="Dog's Dinner Constituent Calculator")
 
 """ NON SESSION VARIABLES """
 
@@ -65,7 +66,7 @@ default_constituent_params = {
                     'high': None,
                 }
             },
-    },
+            },
     'carbs': {
             'desc': 'Carbohydrates',
             'measure_unit': '%',
@@ -87,7 +88,7 @@ default_constituent_params = {
                     'high': None,
                 }
             },
-    },
+            },
     'fibre': {
             'desc': 'Fibre',
             'measure_unit': '%',
@@ -109,7 +110,7 @@ default_constituent_params = {
                     'high': None,
                 }
             },
-    },
+            },
     'sugar': {
             'desc': 'Added Sugars',
             'measure_unit': 'g',
@@ -131,7 +132,7 @@ default_constituent_params = {
                     'high': None,
                 }
             },
-    },
+            },
     'sodium': {
             'desc': 'Sodium',
             'measure_unit': 'g/kcal',
@@ -153,7 +154,7 @@ default_constituent_params = {
                     'high': 0.0012,
                 }
             },
-    },
+            },
     'chloride': {
             'desc': 'Chloride',
             'measure_unit': '%',
@@ -175,7 +176,7 @@ default_constituent_params = {
                     'high': None,
                 }
             },
-    },
+            },
     'ash': {
             'desc': 'Ash',
             'measure_unit': '%',
@@ -197,7 +198,7 @@ default_constituent_params = {
                     'high': None,
                 }
             },
-    },
+            },
     'phosphorus': {
             'desc': 'Phosphorus',
             'measure_unit': '%',
@@ -219,7 +220,7 @@ default_constituent_params = {
                     'high': 0.8,
                 }
             },
-    },
+            },
 }
 
 constituent_params = deepcopy(default_constituent_params)
@@ -847,18 +848,17 @@ def display_results(food_name, panc, renal):
 
 
 """ PAGE 1 """
-
-st.warning('This app is currently in beta testing, therefore the results may be inaccurate. Please do not rely solely on the information provided here.', icon="ℹ️")
 header_col_1, header_col_2 = st.columns([10, 90], gap='medium')
 with header_col_1:
     with st.container(border=True):
         st.image('logo.jpg', use_column_width=True)
 with header_col_2:
     st.title(":rainbow[Dog's Dinner Constituent Calculator]")
-    st.subheader(
-        ":grey[Dry Matter Basis Calculation Tool for Renal & Pancreatitis Diets]", divider=False)
+    st.header(
+        ":grey[Dry Matter Basis Calculator for Renal & Pancreatitis Diets]", divider=False)
 with st.container(border=True):
     st.subheader(":grey[About]")
+    st.warning('This app is currently in beta testing, therefore the results may be inaccurate. Please do not rely solely on the information provided here.', icon="ℹ️")
     st.markdown("The purpose of this calculator is to provide 'Dry Matter Basis' comparison between commercially available dog foods, where the 'analytical constituents' are provided by the manufacturer 'As Fed'.\n\nBased on this information, the app also indicates the food's suitability as a diet for dogs with kidney (renal) disease, and/or pancreatitis.")
     with st.expander(':green[Click here to expand details about what this app does, and why it does it.]'):
         st.markdown(

@@ -12,7 +12,9 @@ Default values for the calculations used to establish the suitability of the dog
 
 ## Where?
 
-A live instance of this application is hosted by Streamlit and is available [here](https://dogs-dinner-constituent-calculator.streamlit.app/).
+A live instance of this application is hosted by Streamlit.
+
+[![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://<your-custom-subdomain>.streamlit.app)
 
 Code releases are also available right here on GitHub.
 
