@@ -5,7 +5,7 @@
 - Description: 'Dry Matter Basis' calculation, 
    comparison & evaluation tool, for renal & pancreatitis 
    dog food diet suitability.
-- Version: 0.1.9-beta
+- Version: 0.2.0-beta
 - License: GNU General Public License Version 3.0 (GPLv3.0),
    available at https://www.gnu.org/licenses/gpl-3.0.txt
 """
@@ -520,7 +520,7 @@ def enforce_required(kcal_measure_weight, kcal, salt, salt_measure_weight,
     test_passed = True
     if not kcal_measure_weight or not kcal:
         st.warning(
-            f":blue[Both the calories and 'per *n* grams' fields need to be provided.]")
+            f":blue[Both the Calories (kcal) and 'per weight of food (g)' fields need to be provided.]")
         test_passed = False
     if salt and not salt_measure_weight:
         st.warning(
@@ -904,7 +904,7 @@ with col_1:
                 )
             with cal_col_2:
                 st.session_state.crude_kcal_measure_weight = st.number_input(
-                    label="per Weight of Food (g)", key='kcal_measure_weight', min_value=0.00, max_value=100000.0, value=st.session_state.default_inputs['kcal_measure']
+                    label="per weight of food (g)", key='kcal_measure_weight', min_value=0.00, max_value=100000.0, value=st.session_state.default_inputs['kcal_measure']
                 )
 
         st.session_state.crude_moisture = st.number_input(
