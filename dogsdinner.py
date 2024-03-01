@@ -848,15 +848,16 @@ def display_results(food_name, panc, renal):
 
 
 """ PAGE 1 """
-header_col_1, header_col_2 = st.columns([10, 90], gap='medium')
+header_col_1, header_col_2 = st.columns([15, 85], gap='medium')
 with st.container():
     with header_col_1:
         with st.container(border=True):
             st.image('logo.jpg', use_column_width=True)
     with header_col_2:
-        st.title(":rainbow[Dog's Dinner Constituent Calculator]")
-        st.header(
-            ":grey[Dry Matter Basis Calculator for Renal & Pancreatitis Diets]", divider=False)
+        with st.container(border=False):
+            st.title(":rainbow[Dog's Dinner Constituent Calculator]")
+            st.header(
+                ":grey[Dry Matter Basis Calculator for Renal & Pancreatitis Diets]", divider=False)
 with st.container(border=True):
     st.subheader(":grey[About]")
     st.warning('This app is currently in beta testing, therefore the results may be inaccurate. Please do not rely solely on the information provided here.', icon="ℹ️")
