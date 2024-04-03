@@ -1079,4 +1079,4 @@ with st.container(border=True):
     st.markdown("[European Union's Knowledge for Policy Documentation](https://knowledge4policy.ec.europa.eu/health-promotion-knowledge-gateway/dietary-saltsodium_en) (Official Documentation)")
     st.markdown("[PedMD: What to feed a dog with kidney disease](https://www.petmd.com/dog/nutrition/what-feed-dog-kidney-disease) (Web Resource)")
 
-st.caption('App developed by [Dan Bright (UplandsDynamic)](mailto:dan@uplandsdynamic.com). Code available on [GitHub](https://github.com/uplandsdynamic/dogs-dinner-constituent-calculator). Licensed GPLv3.')
+st.caption('App developed by [Dan Bright (UplandsDynamic)](mailto:dan@uplandsdynamic.com). Version: 0.2.2-beta. Code available on [GitHub](https://github.com/uplandsdynamic/dogs-dinner-constituent-calculator). Licensed GPLv3.')
