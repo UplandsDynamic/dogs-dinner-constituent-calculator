@@ -37,7 +37,8 @@ default_constituent_params = {
             },
             'renal': {
                 'low': 15,
-                'high': 30,
+                # changed from 30 (as per AADF) on 05/10/24 as other sites differ
+                'high': 20,
                 'default_changed': False,
                 'defaults': {
                     'low': 15,
@@ -66,7 +67,7 @@ default_constituent_params = {
                     'high': None,
                 }
             },
-            },
+        },
     'carbs': {
             'desc': 'Carbohydrates',
             'measure_unit': '%',
@@ -88,7 +89,7 @@ default_constituent_params = {
                     'high': None,
                 }
             },
-            },
+        },
     'fibre': {
             'desc': 'Fibre',
             'measure_unit': '%',
@@ -110,7 +111,7 @@ default_constituent_params = {
                     'high': None,
                 }
             },
-            },
+        },
     'sugar': {
             'desc': 'Added Sugars',
             'measure_unit': 'g',
@@ -132,7 +133,7 @@ default_constituent_params = {
                     'high': None,
                 }
             },
-            },
+        },
     'sodium': {
             'desc': 'Sodium',
             'measure_unit': 'g/kcal',
@@ -154,7 +155,7 @@ default_constituent_params = {
                     'high': 0.0012,
                 }
             },
-            },
+        },
     'chloride': {
             'desc': 'Chloride',
             'measure_unit': '%',
@@ -176,7 +177,7 @@ default_constituent_params = {
                     'high': None,
                 }
             },
-            },
+        },
     'ash': {
             'desc': 'Ash',
             'measure_unit': '%',
@@ -198,7 +199,7 @@ default_constituent_params = {
                     'high': None,
                 }
             },
-            },
+        },
     'phosphorus': {
             'desc': 'Phosphorus',
             'measure_unit': '%',
@@ -220,7 +221,7 @@ default_constituent_params = {
                     'high': 0.8,
                 }
             },
-            },
+        },
 }
 
 constituent_params = deepcopy(default_constituent_params)
@@ -819,7 +820,7 @@ def display_results(food_name, panc, renal):
                         changed for the following constituents: {', '.join([
                     d['nutrient'] for d in panc if d.get('default_param_changed')])}""")
         else:
-            st.error(f''':white[{food_name} is unsuitable for dogs with pancreatitis.]''',
+            st.error(f'''{food_name} is unsuitable for dogs with pancreatitis.''',
                      icon='👎')
             for test in panc:
                 if test['pass'] == False:
@@ -832,13 +833,13 @@ def display_results(food_name, panc, renal):
         st.subheader(':violet[Renal Diet]')
         if all(d.get('pass', False) == True for d in renal):
             st.success(
-                f''':white[{food_name} is suitable for a renal diet]''', icon='👍')
+                f'''{food_name} is suitable for a renal diet''', icon='👍')
             if any(d.get('default_param_changed') for d in renal):
                 st.warning(f"""Warning: The default calculation parameters have been
                         changed for the following constituents: {', '.join([
                     d['nutrient'] for d in renal if d.get('default_param_changed')])}""")
         else:
-            st.error(f''':white[{food_name} is unsuitable for dogs with kidney disease.]''',
+            st.error(f'''{food_name} is unsuitable for dogs with kidney disease.''',
                      icon='👎')
             for test in renal:
                 if test['pass'] == False:
