@@ -813,7 +813,7 @@ def display_results(food_name, panc, renal):
         st.subheader(':blue[Pancreatitis Diet]')
         if all(d.get('pass', False) == True for d in panc):
             st.success(
-                f''':white[{food_name} is suitable for a pancreatitis diet]''', icon='👍')
+                f'''{food_name} is suitable for a pancreatitis diet''', icon='👍')
             if any(d.get('default_param_changed') for d in panc):
                 st.warning(f"""Warning: The default calculation parameters have been
                         changed for the following constituents: {', '.join([
