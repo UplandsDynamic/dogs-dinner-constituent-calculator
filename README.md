@@ -1,11 +1,11 @@
 # Dog's Dinner Constituent Calculator
 
+The purpose of this calculator tool is to provide 'Dry Matter Basis' comparison between commercially available dog foods, where the 'analytical constituents' are provided by the manufacturer 'As Fed'.
+
 ## SECURITY ADVISORY
 
 This code is no longer actively maintained. Please ensure all dependencies are upgraded to the latest versions before use, so that potential security vulnerabilities are patched.
 Futhermore, this code has not been auited for security and may contain vulnerabilities. Use at your own risk.
-
-The purpose of this calculator tool is to provide 'Dry Matter Basis' comparison between commercially available dog foods, where the 'analytical constituents' are provided by the manufacturer 'As Fed'.
 
 ## Why?
 
